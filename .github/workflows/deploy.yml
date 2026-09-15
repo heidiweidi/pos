@@ -1,0 +1,45 @@
+name: Deploy POS to Cloudflare Workers
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Write build-time public env
+        run: |
+          echo "NEXT_PUBLIC_POS_LANE=${NEXT_PUBLIC_POS_LANE:-Lane 04}" >> .env.local
+          echo "NEXT_PUBLIC_POS_TERMINAL=${NEXT_PUBLIC_POS_TERMINAL:-Main Terminal}" >> .env.local
+          echo "NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}" >> .env.local
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}" >> .env.local
+          echo "NEXT_PUBLIC_POS_DATA_SOURCE=${NEXT_PUBLIC_POS_DATA_SOURCE:-mock}" >> .env.local
+          echo "NEXT_PUBLIC_POS_AUTH=${NEXT_PUBLIC_POS_AUTH:-dummy}" >> .env.local
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      - name: Build for Cloudflare
+        run: npm run cf:build
+
+      - name: Deploy to Cloudflare Workers
+        run: npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
