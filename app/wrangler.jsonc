@@ -1,0 +1,23 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "restohub-pos",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    "NEXT_PUBLIC_POS_LANE": "Lane 04",
+    "NEXT_PUBLIC_POS_TERMINAL": "Main Terminal"
+  }
+  // Secrets (set with `npx wrangler secret put <NAME>`):
+  //   NEXT_PUBLIC_SUPABASE_URL
+  //   NEXT_PUBLIC_SUPABASE_ANON_KEY
+  // Note: NEXT_PUBLIC_* values are inlined at build time, so they also need to
+  // live in .env.local (or CI env) when you run `npm run cf:build`.
+}

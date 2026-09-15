@@ -1,0 +1,511 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&amp;family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"tertiary-fixed-dim":"#ffb95f","surface":"#f8f9ff","on-primary-container":"#f5fff7","on-background":"#0b1c30","outline":"#6d7a72","inverse-surface":"#213145","surface-container-high":"#dce9ff","surface-variant":"#d3e4fe","on-tertiary":"#ffffff","surface-container-low":"#eff4ff","outline-variant":"#bccac0","on-error":"#ffffff","on-secondary-fixed":"#131b2e","primary-fixed-dim":"#68dba9","on-tertiary-container":"#fffbff","tertiary-fixed":"#ffddb8","primary":"#006948","on-surface-variant":"#3d4a42","on-secondary":"#ffffff","tertiary-container":"#a36700","secondary-fixed":"#dae2fd","error-container":"#ffdad6","on-surface":"#0b1c30","surface-tint":"#006c4a","on-secondary-container":"#5c647a","primary-container":"#00855d","primary-fixed":"#85f8c4","inverse-primary":"#68dba9","on-tertiary-fixed-variant":"#653e00","surface-dim":"#cbdbf5","background":"#f8f9ff","error":"#ba1a1a","secondary-fixed-dim":"#bec6e0","on-primary-fixed-variant":"#005137","tertiary":"#825100","on-tertiary-fixed":"#2a1700","surface-container":"#e5eeff","on-error-container":"#93000a","surface-bright":"#f8f9ff","inverse-on-surface":"#eaf1ff","surface-container-lowest":"#ffffff","on-primary-fixed":"#002114","secondary":"#565e74","on-primary":"#ffffff","surface-container-highest":"#d3e4fe","secondary-container":"#dae2fd","on-secondary-fixed-variant":"#3f465c"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"gutter-lg":"1rem","margin":"0.75rem","space-lg":"1rem","space-md":"0.75rem","margin-lg":"1rem","space-xl":"1.5rem","space-xs":"0.25rem","gutter":"0.75rem","space-sm":"0.5rem"},"fontFamily":{"label-lg":["Inter"],"headline-xl":["DM Sans"],"numeric-lg":["Inter"],"body-sm":["Inter"],"numeric-md":["Inter"],"label-md":["Inter"],"headline-md":["DM Sans"],"numeric-hero":["DM Sans"],"body-lg":["Inter"],"headline-sm":["DM Sans"],"body-xl":["Inter"],"body-md":["Inter"],"headline-lg":["DM Sans"],"label-sm":["Inter"]},"fontSize":{"label-lg":["15px",{"lineHeight":"20px","letterSpacing":"0.01em","fontWeight":"600"}],"headline-xl":["36px",{"lineHeight":"44px","letterSpacing":"-0.02em","fontWeight":"700"}],"numeric-lg":["24px",{"lineHeight":"28px","letterSpacing":"-0.01em","fontWeight":"600"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}],"numeric-md":["16px",{"lineHeight":"20px","fontWeight":"600"}],"label-md":["13px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"600"}],"headline-md":["22px",{"lineHeight":"28px","fontWeight":"600"}],"numeric-hero":["40px",{"lineHeight":"44px","letterSpacing":"-0.03em","fontWeight":"700"}],"body-lg":["16px",{"lineHeight":"24px","fontWeight":"400"}],"headline-sm":["18px",{"lineHeight":"24px","fontWeight":"600"}],"body-xl":["20px",{"lineHeight":"28px","fontWeight":"500"}],"body-md":["14px",{"lineHeight":"20px","fontWeight":"400"}],"headline-lg":["28px",{"lineHeight":"36px","letterSpacing":"-0.01em","fontWeight":"700"}],"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.03em","fontWeight":"600"}]}}}}</script></head><body class="bg-surface font-body-md text-on-surface antialiased min-h-screen flex flex-col justify-between select-none"><header class="fixed top-0 w-full z-50 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 w-full px-space-md flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md shrink-0"><img alt="RestoHub Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAj5M-jTKo_qugmMyAigJoLjdJvxJA-sG27rJRj9mO3OyuNbl0KbuHeEPEw8Mpabols0E3A7E7HRx6FHLHLCoGQTrNnVVPHvscSa-DhMXRujUQT0kmhumMxE8R43z3laZ0HcDMsO5-CL1Rag9PYBguDCVSQJrntsm7r3gYryemJibMEKjmwM8pO-P_PtPyH4zdGQqorngH51Cc2CEKVaZm81FdvrEwuUPmebCAiqIv85VEUXyqNkKe2B8RWMZTZKJ7-hg"><div class="flex items-center gap-space-xs bg-surface-container-low px-space-sm py-space-xs rounded"><span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span><span class="font-label-md text-label-md text-on-surface">Lane 04 • Main Terminal • Online</span></div><div class="hidden xl:flex items-center gap-space-xs bg-inverse-surface px-space-sm py-space-xs rounded text-inverse-on-surface"><span class="material-symbols-outlined text-primary-fixed-dim text-base">scale</span><span class="font-label-md text-label-md tracking-wider text-primary-fixed">Scale: 0.00 lb ZERO</span></div></div><nav class="flex items-center gap-space-xs bg-surface-container-low p-space-xs rounded" data-active-classes="bg-primary-container text-on-primary-container font-label-md rounded"><a aria-current="page" class="px-space-md py-space-xs transition-colors bg-primary-container text-on-primary-container font-label-md rounded" data-path="active-register" href="#">Active Register</a><a class="px-space-md py-space-xs font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="produce-plu-lookup" href="#">Produce PLU Lookup</a><a class="px-space-md py-space-xs font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="tender-payment" href="#">Tender &amp; Payment</a><a class="px-space-md py-space-xs font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="manager-shift" href="#">Manager &amp; Shift</a></nav><div class="flex items-center gap-space-sm shrink-0"><button class="flex items-center gap-space-xs px-space-sm py-space-xs bg-secondary-container text-on-secondary-fixed rounded hover:bg-surface-container-high transition-colors font-label-md text-label-md" type="button"><span class="material-symbols-outlined text-base">badge</span><span class="">Alt+C Member</span></button><button class="flex items-center gap-space-xs px-space-sm py-space-xs bg-error-container text-on-error-container rounded hover:bg-error/20 transition-colors font-label-md text-label-md" type="button"><span class="material-symbols-outlined text-base">notifications_active</span><span class="">F1 Call Mgr</span></button><div class="flex items-center gap-space-sm pl-space-xs bg-surface-container-low py-space-xs pr-space-xs rounded"><div class="text-right hidden sm:block"><div class="font-label-md text-label-md text-on-surface leading-tight">Sarah Jenkins</div><div class="font-label-sm text-label-sm text-on-surface-variant leading-tight">Shift #482</div></div><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqsXmZKXRFc9LUm4Y9J_9Y04b1OYc0b4HksHl7omD94_1mvyTpoJIotPq7XmdzZxoVYwW96ePvyGpwWSmv8Quxh7xm4PdXXCt0PbP7H_VvkaxQHQHb9KH1VP6SFjL8eur-qFdZ2cy6fzt_x1LJEzs9z4jXR9O_TthT4YPHIF6NWEPaggC09C4lczof5rfQEQNNlxuS1NuEpBqWwBTF0ja718Ljr1hRHeeQ-mEiMPhju7br0dNfetkO"><button class="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" title="Lock Terminal / Sign Out" type="button"><span class="material-symbols-outlined text-lg">lock</span></button></div></div></div></header><main class="w-full pt-16 pb-12 bg-surface flex-1"><div class="flex flex-col w-full">
+<!-- POS Active Register Workstation Root Layout -->
+<div class="grid grid-cols-12 gap-space-sm p-space-sm max-w-[1920px] mx-auto w-full h-[calc(100vh-7rem)] overflow-hidden">
+<!-- LEFT COLUMN: Scanned Items Cart & Receipt Stream (~42% -> 5 cols) -->
+<div class="col-span-12 lg:col-span-5 flex flex-col h-full bg-surface-container-lowest rounded-xl shadow-md overflow-hidden">
+<!-- Loyalty Member Banner -->
+<div class="bg-primary-container px-space-md py-space-sm text-on-primary-container flex items-center justify-between shadow-sm shrink-0">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-8 h-8 rounded-full bg-surface-container-lowest/20 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-base text-on-primary-container">verified</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-md text-label-md truncate">Marcus Vance</span>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm px-1.5 py-0.2 rounded font-semibold tracking-wide uppercase">Gold</span>
+</div>
+<p class="font-body-sm text-body-sm opacity-90 truncate">#84920 • 340 Pts • $5.00 Reward Available</p>
+</div>
+</div>
+<button class="px-space-sm py-1 bg-surface-container-lowest/15 hover:bg-surface-container-lowest/25 transition-colors rounded font-label-sm text-label-sm text-on-primary-container whitespace-nowrap" type="button">
+          Apply $5.00
+        </button>
+</div>
+<!-- Scanned Items Table Header -->
+<div class="grid grid-cols-12 px-space-md py-space-xs bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider shrink-0">
+<div class="col-span-1 text-center">Qty</div>
+<div class="col-span-6 pl- space-xs">Description / Code</div>
+<div class="col-span-2 text-center">Tax</div>
+<div class="col-span-3 text-right pr-1">Total</div>
+</div>
+<!-- Scrollable Receipt Tape Stream -->
+<div class="flex-1 overflow-y-auto divide-y-0 text-on-surface select-none" id="cart-item-stream">
+<!-- Item 1 -->
+<div class="grid grid-cols-12 items-center px-space-md py-space-sm hover:bg-surface-container-low transition-colors cursor-pointer bg-surface-container-lowest">
+<div class="col-span-1 text-center font-numeric-md text-numeric-md">4</div>
+<div class="col-span-6 pl-space-xs min-w-0">
+<div class="font-label-md text-label-md truncate text-on-surface">Organic Hass Avocados</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">4 @ $1.25 ea • PLU 4225</div>
+</div>
+<div class="col-span-2 text-center">
+<span class="font-label-sm text-label-sm px-1 rounded bg-surface-container text-on-surface-variant">F</span>
+</div>
+<div class="col-span-3 text-right font-numeric-md text-numeric-md pr-1">$5.00</div>
+</div>
+<!-- Item 2 -->
+<div class="grid grid-cols-12 items-center px-space-md py-space-sm hover:bg-surface-container-low transition-colors cursor-pointer bg-surface-container-lowest">
+<div class="col-span-1 text-center font-numeric-md text-numeric-md">1</div>
+<div class="col-span-6 pl-space-xs min-w-0">
+<div class="font-label-md text-label-md truncate text-on-surface">Whole Milk 1 Gallon</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">UPC 04122081921 • Dairy</div>
+</div>
+<div class="col-span-2 text-center">
+<span class="font-label-sm text-label-sm px-1 rounded bg-surface-container text-on-surface-variant">F</span>
+</div>
+<div class="col-span-3 text-right font-numeric-md text-numeric-md pr-1">$3.79</div>
+</div>
+<!-- Item 3: Weighed Produce (Active Selected Row) -->
+<div class="relative bg-surface-container-high px-space-md py-space-sm cursor-pointer shadow-sm">
+<div class="grid grid-cols-12 items-center">
+<div class="col-span-1 text-center font-numeric-md text-numeric-md text-primary">2.34#</div>
+<div class="col-span-6 pl-space-xs min-w-0">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-primary">scale</span>
+<span class="font-label-md text-label-md font-bold text-on-surface truncate">Honeycrisp Apples</span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">2.34 lb @ $2.49/lb • Tare 0.02 lb • PLU 3283</div>
+</div>
+<div class="col-span-2 text-center">
+<span class="font-label-sm text-label-sm px-1 rounded bg-surface-container text-on-surface-variant">F</span>
+</div>
+<div class="col-span-3 text-right font-numeric-md text-numeric-md font-bold text-primary pr-1">$5.83</div>
+</div>
+<!-- Inline Quick Modifier Action Bar for active selection -->
+<div class="flex items-center justify-between pt-space-xs mt-space-xs">
+<div class="flex items-center gap-1">
+<button class="flex items-center gap-0.5 px-space-xs py-0.5 bg-error text-on-error rounded font-label-sm text-label-sm hover:opacity-90" type="button">
+<span class="material-symbols-outlined text-xs">delete</span> Void
+              </button>
+<button class="flex items-center gap-0.5 px-space-xs py-0.5 bg-surface-container-lowest text-on-surface rounded font-label-sm text-label-sm shadow-sm hover:bg-surface" type="button">
+<span class="material-symbols-outlined text-xs">add_circle</span> Qty
+              </button>
+<button class="flex items-center gap-0.5 px-space-xs py-0.5 bg-surface-container-lowest text-on-surface rounded font-label-sm text-label-sm shadow-sm hover:bg-surface" type="button">
+<span class="material-symbols-outlined text-xs">price_change</span> Override
+              </button>
+</div>
+<span class="font-label-sm text-label-sm text-primary font-semibold">Row Selected</span>
+</div>
+</div>
+<!-- Item 4 -->
+<div class="grid grid-cols-12 items-center px-space-md py-space-sm hover:bg-surface-container-low transition-colors cursor-pointer bg-surface-container-lowest">
+<div class="col-span-1 text-center font-numeric-md text-numeric-md">1.15#</div>
+<div class="col-span-6 pl-space-xs min-w-0">
+<div class="font-label-md text-label-md truncate text-on-surface">Fresh Atlantic Salmon Fillet</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">1.15 lb @ $12.99/lb • Seafood Dept</div>
+</div>
+<div class="col-span-2 text-center">
+<span class="font-label-sm text-label-sm px-1 rounded bg-surface-container text-on-surface-variant">F</span>
+</div>
+<div class="col-span-3 text-right font-numeric-md text-numeric-md pr-1">$14.94</div>
+</div>
+<!-- Item 5: Discount Applied Item -->
+<div class="grid grid-cols-12 items-center px-space-md py-space-sm hover:bg-surface-container-low transition-colors cursor-pointer bg-surface-container-lowest">
+<div class="col-span-1 text-center font-numeric-md text-numeric-md">1</div>
+<div class="col-span-6 pl-space-xs min-w-0">
+<div class="font-label-md text-label-md truncate text-on-surface">Kerrygold Pure Irish Butter 8oz</div>
+<div class="flex items-center gap-space-xs">
+<span class="font-body-sm text-body-sm text-on-surface-variant">UPC 07677070001</span>
+<span class="font-label-sm text-label-sm bg-tertiary text-on-tertiary px-1 rounded">Save $1.00</span>
+</div>
+</div>
+<div class="col-span-2 text-center">
+<span class="font-label-sm text-label-sm px-1 rounded bg-surface-container text-on-surface-variant">F</span>
+</div>
+<div class="col-span-3 text-right font-numeric-md text-numeric-md pr-1">
+<span class="line-through text-on-surface-variant text-xs mr-1">$5.49</span>$4.49
+          </div>
+</div>
+<!-- Item 6 -->
+<div class="grid grid-cols-12 items-center px-space-md py-space-sm hover:bg-surface-container-low transition-colors cursor-pointer bg-surface-container-lowest">
+<div class="col-span-1 text-center font-numeric-md text-numeric-md">1</div>
+<div class="col-span-6 pl-space-xs min-w-0">
+<div class="font-label-md text-label-md truncate text-on-surface">Sourdough Artisan Boule</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Bakery Scratch • PLU 4132</div>
+</div>
+<div class="col-span-2 text-center">
+<span class="font-label-sm text-label-sm px-1 rounded bg-surface-container text-on-surface-variant">F</span>
+</div>
+<div class="col-span-3 text-right font-numeric-md text-numeric-md pr-1">$4.29</div>
+</div>
+<!-- Item 7 -->
+<div class="grid grid-cols-12 items-center px-space-md py-space-sm hover:bg-surface-container-low transition-colors cursor-pointer bg-surface-container-lowest">
+<div class="col-span-1 text-center font-numeric-md text-numeric-md">3.12#</div>
+<div class="col-span-6 pl-space-xs min-w-0">
+<div class="font-label-md text-label-md truncate text-on-surface">Organic Cavendish Bananas</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">3.12 lb @ $0.69/lb • PLU 94011</div>
+</div>
+<div class="col-span-2 text-center">
+<span class="font-label-sm text-label-sm px-1 rounded bg-surface-container text-on-surface-variant">F</span>
+</div>
+<div class="col-span-3 text-right font-numeric-md text-numeric-md pr-1">$2.15</div>
+</div>
+<!-- Item 8: Taxable Beverage Deposit -->
+<div class="grid grid-cols-12 items-center px-space-md py-space-sm hover:bg-surface-container-low transition-colors cursor-pointer bg-surface-container-lowest">
+<div class="col-span-1 text-center font-numeric-md text-numeric-md">1</div>
+<div class="col-span-6 pl-space-xs min-w-0">
+<div class="font-label-md text-label-md truncate text-on-surface">Sparkling Spring Water 12-pk</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Deposit Fee: +$0.60 (CRV) • Tax T</div>
+</div>
+<div class="col-span-2 text-center">
+<span class="font-label-sm text-label-sm px-1 rounded bg-surface-container-high text-on-surface font-bold">T</span>
+</div>
+<div class="col-span-3 text-right font-numeric-md text-numeric-md pr-1">$6.59</div>
+</div>
+</div>
+<!-- Sticky Bottom Cart Financial Summary -->
+<div class="bg-surface-container-low p-space-md shadow-[0_-4px_12px_rgba(0,0,0,0.03)] shrink-0 space-y-space-xs">
+<div class="flex justify-between items-center text-on-surface-variant font-body-sm text-body-sm">
+<span class="">Cart Subtotal</span>
+<span class="font-numeric-md text-numeric-md text-on-surface">$47.08</span>
+</div>
+<div class="flex justify-between items-center text-primary font-body-sm text-body-sm">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">loyalty</span> Loyalty Member Savings
+          </span>
+<span class="font-numeric-md text-numeric-md text-primary">-$1.00</span>
+</div>
+<div class="flex justify-between items-center text-on-surface-variant font-body-sm text-body-sm">
+<span class="">SNAP Food Eligible Portion</span>
+<span class="font-numeric-md text-numeric-md text-on-surface">$40.49</span>
+</div>
+<div class="flex justify-between items-center text-on-surface-variant font-body-sm text-body-sm">
+<span class="">Non-Food Tax &amp; Container Dep.</span>
+<span class="font-numeric-md text-numeric-md text-on-surface">$0.52</span>
+</div>
+<!-- Huge Emerald Total Due Box -->
+<div class="bg-primary text-on-primary p-space-md rounded-xl flex items-center justify-between shadow-md mt-space-xs">
+<div>
+<div class="font-label-sm text-label-sm uppercase tracking-wider text-primary-fixed-dim">Total Balance Due</div>
+<div class="font-body-sm text-body-sm text-on-primary/80">8 Items • 6.61 lbs Total</div>
+</div>
+<div class="text-right">
+<div class="font-numeric-hero text-numeric-hero leading-none tracking-tight">$46.60</div>
+</div>
+</div>
+</div>
+</div>
+<!-- CENTER COLUMN: Fast-Key Touch Grid & Barcode Deck (~38% -> 4.5 cols / 5 cols) -->
+<div class="col-span-12 lg:col-span-4 flex flex-col h-full gap-space-sm overflow-hidden">
+<!-- Barcode / SKU / PLU Live Search Input Dock -->
+<div class="bg-surface-container-lowest p-space-sm rounded-xl shadow-md flex items-center gap-space-sm shrink-0">
+<div class="relative flex-1">
+<span class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-on-surface-variant">
+<span class="material-symbols-outlined">barcode_scanner</span>
+</span>
+<input autofocus="" class="w-full h-12 pl-11 pr-3 bg-surface-container-low rounded-lg font-label-lg text-label-lg text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:bg-surface-container-lowest shadow-inner" placeholder="Scan Barcode / Enter PLU (e.g. 4011)" type="text">
+</div>
+<button class="h-12 px-space-md bg-primary-container text-on-primary-container rounded-lg font-label-lg text-label-lg hover:bg-primary transition-all flex items-center gap-1 shadow-sm active:translate-y-0.5" type="button">
+<span class="">Enter</span>
+<span class="material-symbols-outlined text-lg">subdirectory_arrow_left</span>
+</button>
+</div>
+<!-- Touch Department Category Selector -->
+<div class="flex items-center gap-space-xs overflow-x-auto no-scrollbar shrink-0 py-0.5">
+<button class="px-space-md py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md shadow-sm whitespace-nowrap" type="button">
+          Popular Staples
+        </button>
+<button class="px-space-md py-2 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container-high transition-colors font-label-md text-label-md shadow-sm whitespace-nowrap" type="button">
+          Fresh Produce
+        </button>
+<button class="px-space-md py-2 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container-high transition-colors font-label-md text-label-md shadow-sm whitespace-nowrap" type="button">
+          Bakery &amp; Deli
+        </button>
+<button class="px-space-md py-2 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container-high transition-colors font-label-md text-label-md shadow-sm whitespace-nowrap" type="button">
+          Beverage &amp; Ice
+        </button>
+<button class="px-space-md py-2 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container-high transition-colors font-label-md text-label-md shadow-sm whitespace-nowrap" type="button">
+          Prepared Hot
+        </button>
+</div>
+<!-- Touch Keypad Fast-Item Tiles (3-Column Grid) -->
+<div class="flex-1 bg-surface-container-lowest p-space-sm rounded-xl shadow-md overflow-y-auto">
+<div class="grid grid-cols-3 gap-space-xs">
+<!-- Tile 1 -->
+<button class="h-24 bg-surface-container-lowest hover:bg-surface-container-low transition-all rounded-lg p-space-xs flex flex-col justify-between text-left shadow-sm active:translate-y-0.5 relative group" type="button">
+<div class="flex items-start justify-between w-full">
+<span class="material-symbols-outlined text-tertiary text-xl">egg</span>
+<span class="font-numeric-md text-numeric-md font-bold text-on-surface">$3.49</span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface truncate">Grade A Brown Eggs</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Dozen • SKU 109</div>
+</div>
+</button>
+<!-- Tile 2 -->
+<button class="h-24 bg-surface-container-lowest hover:bg-surface-container-low transition-all rounded-lg p-space-xs flex flex-col justify-between text-left shadow-sm active:translate-y-0.5 relative group" type="button">
+<div class="flex items-start justify-between w-full">
+<span class="material-symbols-outlined text-tertiary-container text-xl">bakery_dining</span>
+<span class="font-numeric-md text-numeric-md font-bold text-on-surface">$2.99</span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface truncate">French Baguette</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Daily Fresh • PLU 4120</div>
+</div>
+</button>
+<!-- Tile 3 -->
+<button class="h-24 bg-surface-container-lowest hover:bg-surface-container-low transition-all rounded-lg p-space-xs flex flex-col justify-between text-left shadow-sm active:translate-y-0.5 relative group" type="button">
+<div class="flex items-start justify-between w-full">
+<span class="material-symbols-outlined text-tertiary text-xl">dinner_dining</span>
+<span class="font-numeric-md text-numeric-md font-bold text-on-surface">$7.99</span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface truncate">Rotisserie Chicken</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Hot Deli • PLU 8810</div>
+</div>
+</button>
+<!-- Tile 4 (Scale Produce) -->
+<button class="h-24 bg-surface-container-lowest hover:bg-surface-container-low transition-all rounded-lg p-space-xs flex flex-col justify-between text-left shadow-sm active:translate-y-0.5 relative group" type="button">
+<div class="flex items-start justify-between w-full">
+<span class="material-symbols-outlined text-primary text-xl">nutrition</span>
+<span class="bg-primary/10 text-primary px-1 rounded font-label-sm text-label-sm flex items-center gap-0.5">
+<span class="material-symbols-outlined text-xs">scale</span> lb
+              </span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface truncate">Cavendish Bananas</div>
+<div class="font-numeric-md text-numeric-md text-primary font-bold">$0.69/lb <span class="font-body-sm text-body-sm text-on-surface-variant font-normal">(94011)</span></div>
+</div>
+</button>
+<!-- Tile 5 (Scale Produce) -->
+<button class="h-24 bg-surface-container-lowest hover:bg-surface-container-low transition-all rounded-lg p-space-xs flex flex-col justify-between text-left shadow-sm active:translate-y-0.5 relative group" type="button">
+<div class="flex items-start justify-between w-full">
+<span class="material-symbols-outlined text-error text-xl">grocery</span>
+<span class="bg-primary/10 text-primary px-1 rounded font-label-sm text-label-sm flex items-center gap-0.5">
+<span class="material-symbols-outlined text-xs">scale</span> lb
+              </span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface truncate">Roma Tomatoes</div>
+<div class="font-numeric-md text-numeric-md text-primary font-bold">$1.89/lb <span class="font-body-sm text-body-sm text-on-surface-variant font-normal">(4087)</span></div>
+</div>
+</button>
+<!-- Tile 6 (Scale Produce) -->
+<button class="h-24 bg-surface-container-lowest hover:bg-surface-container-low transition-all rounded-lg p-space-xs flex flex-col justify-between text-left shadow-sm active:translate-y-0.5 relative group" type="button">
+<div class="flex items-start justify-between w-full">
+<span class="material-symbols-outlined text-primary-container text-xl">eco</span>
+<span class="bg-primary/10 text-primary px-1 rounded font-label-sm text-label-sm flex items-center gap-0.5">
+<span class="material-symbols-outlined text-xs">scale</span> lb
+              </span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface truncate">Hass Avocados</div>
+<div class="font-numeric-md text-numeric-md text-on-surface font-bold">$1.25 ea <span class="font-body-sm text-body-sm text-on-surface-variant font-normal">(4225)</span></div>
+</div>
+</button>
+<!-- Tile 7 -->
+<button class="h-24 bg-surface-container-lowest hover:bg-surface-container-low transition-all rounded-lg p-space-xs flex flex-col justify-between text-left shadow-sm active:translate-y-0.5 relative group" type="button">
+<div class="flex items-start justify-between w-full">
+<span class="material-symbols-outlined text-tertiary-fixed-dim text-xl">nature</span>
+<span class="font-numeric-md text-numeric-md font-bold text-on-surface">3/$2.00</span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface truncate">Fresh Meyer Lemons</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Produce • PLU 4053</div>
+</div>
+</button>
+<!-- Tile 8 -->
+<button class="h-24 bg-surface-container-lowest hover:bg-surface-container-low transition-all rounded-lg p-space-xs flex flex-col justify-between text-left shadow-sm active:translate-y-0.5 relative group" type="button">
+<div class="flex items-start justify-between w-full">
+<span class="material-symbols-outlined text-primary text-xl">local_florist</span>
+<span class="font-numeric-md text-numeric-md font-bold text-on-surface">$0.99</span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface truncate">Fresh Cilantro Bunch</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Produce • PLU 4889</div>
+</div>
+</button>
+<!-- Tile 9 -->
+<button class="h-24 bg-surface-container-lowest hover:bg-surface-container-low transition-all rounded-lg p-space-xs flex flex-col justify-between text-left shadow-sm active:translate-y-0.5 relative group" type="button">
+<div class="flex items-start justify-between w-full">
+<span class="material-symbols-outlined text-error text-xl">nutrition</span>
+<span class="font-numeric-md text-numeric-md font-bold text-on-surface">$5.99</span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface truncate">Seedless Watermelon</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Whole • PLU 4032</div>
+</div>
+</button>
+<!-- Tile 10 -->
+<button class="h-24 bg-surface-container-lowest hover:bg-surface-container-low transition-all rounded-lg p-space-xs flex flex-col justify-between text-left shadow-sm active:translate-y-0.5 relative group" type="button">
+<div class="flex items-start justify-between w-full">
+<span class="material-symbols-outlined text-secondary text-xl">ac_unit</span>
+<span class="font-numeric-md text-numeric-md font-bold text-on-surface">$2.50</span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface truncate">Party Ice 7lb Bag</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Freezer • SKU 881</div>
+</div>
+</button>
+<!-- Tile 11 -->
+<button class="h-24 bg-surface-container-lowest hover:bg-surface-container-low transition-all rounded-lg p-space-xs flex flex-col justify-between text-left shadow-sm active:translate-y-0.5 relative group" type="button">
+<div class="flex items-start justify-between w-full">
+<span class="material-symbols-outlined text-tertiary text-xl">soup_kitchen</span>
+<span class="font-numeric-md text-numeric-md font-bold text-on-surface">$4.99</span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface truncate">Deli Soup 16oz Cup</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Deli Kitchen • SKU 302</div>
+</div>
+</button>
+<!-- Tile 12 -->
+<button class="h-24 bg-surface-container-lowest hover:bg-surface-container-low transition-all rounded-lg p-space-xs flex flex-col justify-between text-left shadow-sm active:translate-y-0.5 relative group" type="button">
+<div class="flex items-start justify-between w-full">
+<span class="material-symbols-outlined text-outline text-xl">shopping_bag</span>
+<span class="font-numeric-md text-numeric-md font-bold text-on-surface">$0.10</span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface truncate">Paper Grocery Bag</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Fee • SKU 9901</div>
+</div>
+</button>
+</div>
+</div>
+</div>
+<!-- RIGHT COLUMN: Hardware Scale Readout & Core Register Operations (~20% -> 3 cols) -->
+<div class="col-span-12 lg:col-span-3 flex flex-col h-full gap-space-sm overflow-hidden">
+<!-- Mettler Toledo Scale Real-time HUD -->
+<div class="bg-inverse-surface rounded-xl p-space-md text-inverse-on-surface shadow-md shrink-0 flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary-fixed-dim text-lg">scale</span>
+<span class="font-label-md text-label-md text-primary-fixed tracking-wider">Avery Berkel 6712</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary-container text-on-primary-container">STABLE</span>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-surface-container-lowest/20 text-inverse-on-surface">NET</span>
+</div>
+</div>
+<!-- Scale Big Numeric LED Display -->
+<div class="my-space-xs flex items-baseline justify-between">
+<span class="font-numeric-hero text-numeric-hero text-primary-fixed font-bold tracking-tight">2.34</span>
+<div class="text-right">
+<span class="font-label-lg text-label-lg text-primary-fixed font-bold">LB</span>
+<div class="font-body-sm text-body-sm text-surface-dim">Tare: 0.02 lb</div>
+</div>
+</div>
+<!-- Scale Operations Keys -->
+<div class="grid grid-cols-3 gap-1 pt-1">
+<button class="py-1.5 bg-surface-container-lowest/15 hover:bg-surface-container-lowest/25 transition-colors rounded text-center font-label-sm text-label-sm text-inverse-on-surface active:scale-95" type="button">
+            ZERO
+          </button>
+<button class="py-1.5 bg-surface-container-lowest/15 hover:bg-surface-container-lowest/25 transition-colors rounded text-center font-label-sm text-label-sm text-inverse-on-surface active:scale-95" type="button">
+            TARE
+          </button>
+<button class="py-1.5 bg-surface-container-lowest/15 hover:bg-surface-container-lowest/25 transition-colors rounded text-center font-label-sm text-label-sm text-inverse-on-surface active:scale-95" type="button">
+            MANUAL
+          </button>
+</div>
+</div>
+<!-- Quick Fast-Tender Direct Shortcuts -->
+<div class="grid grid-cols-2 gap-space-xs shrink-0">
+<button class="h-12 bg-surface-container-lowest hover:bg-surface-container-high transition-colors rounded-lg flex items-center justify-center gap-1 font-label-md text-label-md text-on-surface shadow-sm active:translate-y-0.5" type="button">
+<span class="material-symbols-outlined text-primary text-base">payments</span>
+<span class="">Fast $50</span>
+</button>
+<button class="h-12 bg-surface-container-lowest hover:bg-surface-container-high transition-colors rounded-lg flex items-center justify-center gap-1 font-label-md text-label-md text-on-surface shadow-sm active:translate-y-0.5" type="button">
+<span class="material-symbols-outlined text-primary text-base">paid</span>
+<span class="">Exact $46.60</span>
+</button>
+</div>
+<!-- Massive Primary Checkout CTA Button -->
+<button class="h-16 bg-primary-container text-on-primary-container hover:bg-primary transition-all rounded-xl p-space-sm flex items-center justify-between shadow-lg active:translate-y-0.5 shrink-0 group" type="button">
+<div class="text-left">
+<div class="font-headline-sm text-headline-sm leading-tight flex items-center gap-1.5">
+<span class="">TENDER / PAY</span>
+<span class="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+<div class="font-label-sm text-label-sm opacity-90">[F12] Card • Cash • SNAP</div>
+</div>
+<div class="font-numeric-lg text-numeric-lg font-bold">$46.60</div>
+</button>
+<!-- Cashier Action Function Matrix (Tactile Grid) -->
+<div class="flex-1 bg-surface-container-lowest p-space-sm rounded-xl shadow-md grid grid-cols-2 gap-space-xs overflow-y-auto">
+<button class="flex flex-col items-center justify-center p-2 rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors text-on-surface text-center active:scale-95" type="button">
+<span class="material-symbols-outlined text-xl text-primary mb-0.5">pause_circle</span>
+<span class="font-label-sm text-label-sm font-semibold">Hold Cart</span>
+<span class="text-[10px] text-on-surface-variant">[F7]</span>
+</button>
+<button class="flex flex-col items-center justify-center p-2 rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors text-on-surface text-center active:scale-95" type="button">
+<span class="material-symbols-outlined text-xl text-primary mb-0.5">play_circle</span>
+<span class="font-label-sm text-label-sm font-semibold">Recall Cart</span>
+<span class="text-[10px] text-on-surface-variant">Hold List</span>
+</button>
+<button class="flex flex-col items-center justify-center p-2 rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors text-on-surface text-center active:scale-95" type="button">
+<span class="material-symbols-outlined text-xl text-error mb-0.5">remove_shopping_cart</span>
+<span class="font-label-sm text-label-sm font-semibold text-error">Line Void</span>
+<span class="text-[10px] text-on-surface-variant">[F2]</span>
+</button>
+<button class="flex flex-col items-center justify-center p-2 rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors text-on-surface text-center active:scale-95" type="button">
+<span class="material-symbols-outlined text-xl text-primary mb-0.5">calculate</span>
+<span class="font-label-sm text-label-sm font-semibold">Quantity</span>
+<span class="text-[10px] text-on-surface-variant">[F3] Multiplier</span>
+</button>
+<button class="flex flex-col items-center justify-center p-2 rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors text-on-surface text-center active:scale-95" type="button">
+<span class="material-symbols-outlined text-xl text-tertiary mb-0.5">supervisor_account</span>
+<span class="font-label-sm text-label-sm font-semibold">Override</span>
+<span class="text-[10px] text-on-surface-variant">Supervisor</span>
+</button>
+<button class="flex flex-col items-center justify-center p-2 rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors text-on-surface text-center active:scale-95" type="button">
+<span class="material-symbols-outlined text-xl text-secondary mb-0.5">point_of_sale</span>
+<span class="font-label-sm text-label-sm font-semibold">Open Drawer</span>
+<span class="text-[10px] text-on-surface-variant">No Sale</span>
+</button>
+<button class="flex flex-col items-center justify-center p-2 rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors text-on-surface text-center active:scale-95" type="button">
+<span class="material-symbols-outlined text-xl text-on-surface mb-0.5">print</span>
+<span class="font-label-sm text-label-sm font-semibold">Reprint Slip</span>
+<span class="text-[10px] text-on-surface-variant">Last Order</span>
+</button>
+<button class="flex flex-col items-center justify-center p-2 rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors text-on-surface text-center active:scale-95" type="button">
+<span class="material-symbols-outlined text-xl text-primary mb-0.5">person_add</span>
+<span class="font-label-sm text-label-sm font-semibold">Lookup Loyalty</span>
+<span class="text-[10px] text-on-surface-variant">Phone / Alt+C</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Interactive Terminal Keyboard Shortcuts Listener Script -->
+<script>
+    (function() {
+      // Audio tactile click simulator for retail feedback
+      function playBeep() {
+        try {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(1400, ctx.currentTime);
+          gain.gain.setValueAtTime(0.04, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.05);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.05);
+        } catch(e) {}
+      }
+
+      // Attach audio and visual micro-interactions to buttons
+      document.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          playBeep();
+        });
+      });
+
+      // Global keybindings matching physical POS terminals
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'F12') {
+          e.preventDefault();
+          alert('Opening Tender & Payment Terminal [Total: $46.60]');
+        } else if (e.key === 'F2') {
+          e.preventDefault();
+          alert('Void Item Requested');
+        } else if (e.key === 'F7') {
+          e.preventDefault();
+          alert('Cart Suspended and ticket held.');
+        }
+      });
+    })();
+  </script>
+</div></main><footer class="fixed bottom-0 w-full z-40 bg-surface-container-lowest shadow-[0_-1px_8px_rgba(0,0,0,0.04)]"><div class="h-12 w-full px-space-md flex items-center justify-between gap-space-md text-on-surface-variant"><div class="flex items-center gap-space-md font-label-sm text-label-sm overflow-hidden text-ellipsis whitespace-nowrap"><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-sm text-primary">wifi</span><span class="">Edge: 12ms</span></div><div class="hidden md:flex items-center gap-space-xs"><span class="material-symbols-outlined text-sm text-primary">barcode_scanner</span><span class="">Honeywell Xenon Ready</span></div><div class="hidden lg:flex items-center gap-space-xs"><span class="material-symbols-outlined text-sm text-primary">scale</span><span class="">Toledo Avery Berkel Calibrated</span></div><div class="hidden sm:flex items-center gap-space-xs"><span class="material-symbols-outlined text-sm text-primary">print</span><span class="">Epson TM-T88VI (Paper OK)</span></div><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-sm text-outline">meeting_room</span><span class="">Drawer: Closed</span></div></div><div class="hidden xl:flex items-center gap-space-sm font-label-sm text-label-sm text-on-surface"><span class="bg-surface-container px-space-xs py-0.5 rounded text-on-surface-variant">[F2] Void</span><span class="bg-surface-container px-space-xs py-0.5 rounded text-on-surface-variant">[F3] Qty</span><span class="bg-surface-container px-space-xs py-0.5 rounded text-on-surface-variant">[F4] Price Check</span><span class="bg-surface-container px-space-xs py-0.5 rounded text-on-surface-variant">[F7] Hold Cart</span><span class="bg-primary-container px-space-xs py-0.5 rounded text-on-primary-container font-semibold">[F12] Pay</span></div></div></footer>
+
+</body></html>

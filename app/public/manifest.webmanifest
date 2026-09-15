@@ -1,0 +1,23 @@
+{
+  "name": "Restohub POS",
+  "short_name": "Restohub POS",
+  "description": "Restohub Trading Co. point-of-sale terminal",
+  "id": "/register",
+  "start_url": "/register",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#f8f9ff",
+  "theme_color": "#006948",
+  "categories": ["business", "productivity", "finance"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Active Register", "url": "/register" },
+    { "name": "Produce PLU Lookup", "url": "/plu" },
+    { "name": "Manager & Shift", "url": "/manager" }
+  ]
+}

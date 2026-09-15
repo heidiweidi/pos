@@ -1,0 +1,692 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&amp;family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"tertiary-fixed-dim":"#ffb95f","surface":"#f8f9ff","on-primary-container":"#f5fff7","on-background":"#0b1c30","outline":"#6d7a72","inverse-surface":"#213145","surface-container-high":"#dce9ff","surface-variant":"#d3e4fe","on-tertiary":"#ffffff","surface-container-low":"#eff4ff","outline-variant":"#bccac0","on-error":"#ffffff","on-secondary-fixed":"#131b2e","primary-fixed-dim":"#68dba9","on-tertiary-container":"#fffbff","tertiary-fixed":"#ffddb8","primary":"#006948","on-surface-variant":"#3d4a42","on-secondary":"#ffffff","tertiary-container":"#a36700","secondary-fixed":"#dae2fd","error-container":"#ffdad6","on-surface":"#0b1c30","surface-tint":"#006c4a","on-secondary-container":"#5c647a","primary-container":"#00855d","primary-fixed":"#85f8c4","inverse-primary":"#68dba9","on-tertiary-fixed-variant":"#653e00","surface-dim":"#cbdbf5","background":"#f8f9ff","error":"#ba1a1a","secondary-fixed-dim":"#bec6e0","on-primary-fixed-variant":"#005137","tertiary":"#825100","on-tertiary-fixed":"#2a1700","surface-container":"#e5eeff","on-error-container":"#93000a","surface-bright":"#f8f9ff","inverse-on-surface":"#eaf1ff","surface-container-lowest":"#ffffff","on-primary-fixed":"#002114","secondary":"#565e74","on-primary":"#ffffff","surface-container-highest":"#d3e4fe","secondary-container":"#dae2fd","on-secondary-fixed-variant":"#3f465c"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"gutter-lg":"1rem","margin":"0.75rem","space-lg":"1rem","space-md":"0.75rem","margin-lg":"1rem","space-xl":"1.5rem","space-xs":"0.25rem","gutter":"0.75rem","space-sm":"0.5rem"},"fontFamily":{"label-lg":["Inter"],"headline-xl":["DM Sans"],"numeric-lg":["Inter"],"body-sm":["Inter"],"numeric-md":["Inter"],"label-md":["Inter"],"headline-md":["DM Sans"],"numeric-hero":["DM Sans"],"body-lg":["Inter"],"headline-sm":["DM Sans"],"body-xl":["Inter"],"body-md":["Inter"],"headline-lg":["DM Sans"],"label-sm":["Inter"]},"fontSize":{"label-lg":["15px",{"lineHeight":"20px","letterSpacing":"0.01em","fontWeight":"600"}],"headline-xl":["36px",{"lineHeight":"44px","letterSpacing":"-0.02em","fontWeight":"700"}],"numeric-lg":["24px",{"lineHeight":"28px","letterSpacing":"-0.01em","fontWeight":"600"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}],"numeric-md":["16px",{"lineHeight":"20px","fontWeight":"600"}],"label-md":["13px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"600"}],"headline-md":["22px",{"lineHeight":"28px","fontWeight":"600"}],"numeric-hero":["40px",{"lineHeight":"44px","letterSpacing":"-0.03em","fontWeight":"700"}],"body-lg":["16px",{"lineHeight":"24px","fontWeight":"400"}],"headline-sm":["18px",{"lineHeight":"24px","fontWeight":"600"}],"body-xl":["20px",{"lineHeight":"28px","fontWeight":"500"}],"body-md":["14px",{"lineHeight":"20px","fontWeight":"400"}],"headline-lg":["28px",{"lineHeight":"36px","letterSpacing":"-0.01em","fontWeight":"700"}],"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.03em","fontWeight":"600"}]}}}}</script></head><body class="bg-surface font-body-md text-on-surface antialiased min-h-screen flex flex-col justify-between select-none"><header class="fixed top-0 w-full z-50 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 w-full px-space-md flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md shrink-0"><img alt="RestoHub Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAg0bCCME1pNheMJKCGmLdq45oZ9YdWCD-cmvrY5wDYPByWQxdZBlAI1hsMxSMJxa6uSMYvE4EH6pGcJA4I7YTF8N-s_CPry820yTGTpewU7rsE6h2ZlqY6ScKDs_6tyMgZoqPz-two4hqiZqczZ_g-zW9epMXGAAK3UHm6cEE9I91YB2poKhUKbyPkr1_8ALAO87RbQ65kdDbmXVxCrDubr_f_M_cDdObM4YMAUL--xDBQACMix2sBlrCEfOFkoMC5yg"><div class="flex items-center gap-space-xs bg-surface-container-low px-space-sm py-space-xs rounded"><span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span><span class="font-label-md text-label-md text-on-surface">Lane 04 • Main Terminal • Online</span></div><div class="hidden xl:flex items-center gap-space-xs bg-inverse-surface px-space-sm py-space-xs rounded text-inverse-on-surface"><span class="material-symbols-outlined text-primary-fixed-dim text-base">scale</span><span class="font-label-md text-label-md tracking-wider text-primary-fixed">Scale: 0.00 lb ZERO</span></div></div><nav class="flex items-center gap-space-xs bg-surface-container-low p-space-xs rounded" data-active-classes="bg-primary-container text-on-primary-container font-label-md rounded"><a class="px-space-md py-space-xs font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="active-register" href="#">Active Register</a><a aria-current="page" class="px-space-md py-space-xs transition-colors bg-primary-container text-on-primary-container font-label-md rounded" data-path="produce-plu-lookup" href="#">Produce PLU Lookup</a><a class="px-space-md py-space-xs font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="tender-payment" href="#">Tender &amp; Payment</a><a class="px-space-md py-space-xs font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="manager-shift" href="#">Manager &amp; Shift</a></nav><div class="flex items-center gap-space-sm shrink-0"><button class="flex items-center gap-space-xs px-space-sm py-space-xs bg-secondary-container text-on-secondary-fixed rounded hover:bg-surface-container-high transition-colors font-label-md text-label-md" type="button"><span class="material-symbols-outlined text-base">badge</span><span class="">Alt+C Member</span></button><button class="flex items-center gap-space-xs px-space-sm py-space-xs bg-error-container text-on-error-container rounded hover:bg-error/20 transition-colors font-label-md text-label-md" type="button"><span class="material-symbols-outlined text-base">notifications_active</span><span class="">F1 Call Mgr</span></button><div class="flex items-center gap-space-sm pl-space-xs bg-surface-container-low py-space-xs pr-space-xs rounded"><div class="text-right hidden sm:block"><div class="font-label-md text-label-md text-on-surface leading-tight">Sarah Jenkins</div><div class="font-label-sm text-label-sm text-on-surface-variant leading-tight">Shift #482</div></div><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqsXmZKXRFc9LUm4Y9J_9Y04b1OYc0b4HksHl7omD94_1mvyTpoJIotPq7XmdzZxoVYwW96ePvyGpwWSmv8Quxh7xm4PdXXCt0PbP7H_VvkaxQHQHb9KH1VP6SFjL8eur-qFdZ2cy6fzt_x1LJEzs9z4jXR9O_TthT4YPHIF6NWEPaggC09C4lczof5rfQEQNNlxuS1NuEpBqWwBTF0ja718Ljr1hRHeeQ-mEiMPhju7br0dNfetkO"><button class="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" title="Lock Terminal / Sign Out" type="button"><span class="material-symbols-outlined text-lg">lock</span></button></div></div></div></header><main class="w-full pt-16 pb-12 bg-surface flex-1"><div class="flex flex-col w-full">
+<!-- Interactive State Storage (Hidden) -->
+<input id="selected-plu" type="hidden" value="4011">
+<input id="selected-price" type="hidden" value="0.69">
+<input id="selected-type" type="hidden" value="scale">
+<input id="selected-title" type="hidden" value="Bananas (Conventional)">
+<input id="live-weight" type="hidden" value="2.34">
+<input id="tare-weight" type="hidden" value="0.01">
+<!-- Main POS Produce Touch Surface -->
+<div class="p-space-md grid grid-cols-12 gap-space-md max-w-full">
+<!-- LEFT 8.5 COLUMNS: Filter Header & Touch Fast-Key Grid -->
+<div class="col-span-12 xl:col-span-8 2xl:col-span-9 flex flex-col gap-space-md">
+<!-- Barcode / Search Box & Alphabet Fast-Scroll Ribbon -->
+<div class="bg-surface-container-lowest p-space-md rounded shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-center gap-space-md">
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-space-md top-1/2 -translate-y-1/2 text-outline text-xl">search</span>
+<input class="w-full h-12 pl-12 pr-12 bg-surface-container-low rounded font-body-lg text-body-lg text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface-container-lowest focus:shadow-md transition-all" id="plu-search-input" placeholder="Search by name e.g. Honeycrisp, or 4-digit PLU e.g. 4011..." type="text" value="">
+<button class="absolute right-space-sm top-1/2 -translate-y-1/2 w-8 h-8 rounded flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container-high transition-colors" id="clear-search-btn" type="button">
+<span class="material-symbols-outlined text-lg">close</span>
+</button>
+</div>
+<!-- Quick Actions & Back to Lane -->
+<button class="h-12 px-space-md bg-surface-container-high text-on-surface rounded font-label-md text-label-md flex items-center gap-space-xs hover:bg-surface-variant transition-colors shrink-0 shadow-sm" onclick="window.history.back()" type="button">
+<span class="material-symbols-outlined text-base">arrow_back</span>
+<span class="">Return to Lane 04</span>
+</button>
+</div>
+<!-- A-Z Jump Scroller Touch Strip -->
+<div class="flex items-center gap-1 overflow-x-auto py-1 text-on-surface-variant select-none scrollbar-none">
+<button class="px-2 py-1 rounded bg-primary text-on-primary font-label-sm text-label-sm shrink-0">ALL</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container-high font-label-sm text-label-sm shrink-0">A</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container-high font-label-sm text-label-sm shrink-0">B</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container-high font-label-sm text-label-sm shrink-0">C</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container-high font-label-sm text-label-sm shrink-0">D</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container-high font-label-sm text-label-sm shrink-0">E</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container-high font-label-sm text-label-sm shrink-0">F</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container-high font-label-sm text-label-sm shrink-0">G</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container-high font-label-sm text-label-sm shrink-0">H</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container-high font-label-sm text-label-sm shrink-0">I</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container-high font-label-sm text-label-sm shrink-0">J</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container-high font-label-sm text-label-sm shrink-0">K</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container-high font-label-sm text-label-sm shrink-0">L</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container-high font-label-sm text-label-sm shrink-0">M</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container-high font-label-sm text-label-sm shrink-0">N</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container-high font-label-sm text-label-sm shrink-0">O</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container-high font-label-sm text-label-sm shrink-0">P</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container-high font-label-sm text-label-sm shrink-0">Q</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container-high font-label-sm text-label-sm shrink-0">R</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container-high font-label-sm text-label-sm shrink-0">S</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container-high font-label-sm text-label-sm shrink-0">T</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container-high font-label-sm text-label-sm shrink-0">U</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container-high font-label-sm text-label-sm shrink-0">V</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container-high font-label-sm text-label-sm shrink-0">W</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container-high font-label-sm text-label-sm shrink-0">X</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container-high font-label-sm text-label-sm shrink-0">Y</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container-high font-label-sm text-label-sm shrink-0">Z</button>
+</div>
+<!-- Category Filter Pills -->
+<div class="flex items-center gap-space-xs overflow-x-auto pb-1 scrollbar-none">
+<button class="category-pill active flex items-center gap-space-xs px-space-md py-space-xs bg-primary text-on-primary rounded font-label-md text-label-md shrink-0 shadow-sm">
+<span class="">All Produce</span>
+<span class="bg-primary-container px-1.5 py-0.5 rounded text-on-primary-container text-label-sm font-label-sm">148</span>
+</button>
+<button class="category-pill flex items-center gap-space-xs px-space-md py-space-xs bg-surface-container-low hover:bg-surface-container text-on-surface rounded font-label-md text-label-md shrink-0 transition-colors shadow-sm">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="">Organic (9-PLU)</span>
+<span class="bg-surface-container-high px-1.5 py-0.5 rounded text-on-surface-variant text-label-sm font-label-sm">42</span>
+</button>
+<button class="category-pill px-space-md py-space-xs bg-surface-container-low hover:bg-surface-container text-on-surface rounded font-label-md text-label-md shrink-0 transition-colors shadow-sm">
+            Citrus &amp; Tropical
+          </button>
+<button class="category-pill px-space-md py-space-xs bg-surface-container-low hover:bg-surface-container text-on-surface rounded font-label-md text-label-md shrink-0 transition-colors shadow-sm">
+            Apples &amp; Pears
+          </button>
+<button class="category-pill px-space-md py-space-xs bg-surface-container-low hover:bg-surface-container text-on-surface rounded font-label-md text-label-md shrink-0 transition-colors shadow-sm">
+            Greens &amp; Herbs
+          </button>
+<button class="category-pill px-space-md py-space-xs bg-surface-container-low hover:bg-surface-container text-on-surface rounded font-label-md text-label-md shrink-0 transition-colors shadow-sm">
+            Roots &amp; Squash
+          </button>
+<button class="category-pill px-space-md py-space-xs bg-surface-container-low hover:bg-surface-container text-on-surface rounded font-label-md text-label-md shrink-0 transition-colors shadow-sm">
+            Bulk Grains &amp; Nuts
+          </button>
+<button class="category-pill px-space-md py-space-xs bg-surface-container-low hover:bg-surface-container text-on-surface rounded font-label-md text-label-md shrink-0 transition-colors shadow-sm">
+            Bakery &amp; Self-Serve
+          </button>
+</div>
+</div>
+<!-- Main Visual Product Cards Grid -->
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-4 gap-space-md" id="produce-grid">
+<!-- Card 1: Bananas (Currently Selected Default) -->
+<div class="produce-card cursor-pointer bg-surface-container-lowest p-space-md rounded shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative group" data-name="Bananas (Conventional)" data-plu="4011" data-price="0.69" data-type="scale" data-unit="lb">
+<div class="flex items-start justify-between gap-space-xs">
+<span class="bg-primary text-on-primary font-label-md text-label-md px-space-sm py-0.5 rounded shadow-sm">#4011</span>
+<span class="flex items-center gap-1 bg-surface-container text-on-surface font-label-sm text-label-sm px-space-xs py-0.5 rounded">
+<span class="material-symbols-outlined text-xs text-primary">scale</span> Scale Req
+            </span>
+</div>
+<div class="py-space-sm flex justify-center items-center">
+<img class="w-24 h-24 object-contain transition-transform group-hover:scale-105" data-alt="A clean top-down supermarket studio photograph of fresh vibrant yellow ripe bananas in a bunch on crisp white surface, bright diffused retail lighting, rich saturated yellow and green hues" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCswkW8Dg78ySn5AlCnwP8XkENaz0HJh_Serk3iUcH530SZ5hC-aIC6ZDqVBpP2eW9ks273i5KupqcLk--2bXH7BE9aSZQoRJbhrZgy8lu0hAP059EFoy09dvsDHhB6Lx9EHviTamp2EcmvY7zEYtIVwnnbWj1s_X1oYoHxSTycz224aS18wh5sGSwAtASLCZ1IziyTnpDZiuguux744sIVq_odPoU94oYARjbJ-ULukfuqn1WyBRE6">
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate">Bananas</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Conventional Yellow</p>
+<div class="mt-space-xs flex items-baseline justify-between">
+<span class="font-numeric-md text-numeric-md text-primary">$0.69 / lb</span>
+<span class="font-label-sm text-label-sm text-outline">Dept 04</span>
+</div>
+</div>
+<button class="mt-space-sm w-full h-10 bg-primary text-on-primary rounded font-label-md text-label-md flex items-center justify-center gap-space-xs shadow-sm hover:bg-primary-container transition-colors" type="button">
+<span class="material-symbols-outlined text-sm">add_shopping_cart</span>
+<span class="">Select Item</span>
+</button>
+</div>
+<!-- Card 2: Organic Gala Apples -->
+<div class="produce-card cursor-pointer bg-surface-container-lowest p-space-md rounded shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative group" data-name="Organic Gala Apples" data-plu="94131" data-price="2.49" data-type="scale" data-unit="lb">
+<div class="flex items-start justify-between gap-space-xs">
+<span class="bg-primary-container text-on-primary-container font-label-md text-label-md px-space-sm py-0.5 rounded shadow-sm">#94131</span>
+<span class="flex items-center gap-1 bg-surface-container text-on-surface font-label-sm text-label-sm px-space-xs py-0.5 rounded">
+<span class="material-symbols-outlined text-xs text-primary">scale</span> Scale Req
+            </span>
+</div>
+<div class="py-space-sm flex justify-center items-center">
+<img class="w-24 h-24 object-contain transition-transform group-hover:scale-105" data-alt="Studio shot of crisp vibrant red and golden striped organic Gala apples with moisture droplets on a white clean background, crisp commercial lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAc8xT3qbsdS9HZWEzJMGfunkMQR83hMWzku6EesBY90AgJK2iNxL3DSr86D8MaBIptbX_WGByKQmAccV40B7If1109l9uFRSRJmHOi9MgZCb8f0uN2utB9o7JbJrG4Myeju1akLOBQL6kW96h17kT40WNPCxCcU_XVEXLkcBPEVLWAlKj9g0csb3bU4UzrgbZ4G40KgS8fJA1NVcfn-sQJBrDYKbblDtwCW9IhfnaBByHvUcWleOCY">
+</div>
+<div>
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate">Gala Apples</h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Organic Certified</p>
+<div class="mt-space-xs flex items-baseline justify-between">
+<span class="font-numeric-md text-numeric-md text-primary">$2.49 / lb</span>
+<span class="font-label-sm text-label-sm text-outline">Dept 04</span>
+</div>
+</div>
+<button class="mt-space-sm w-full h-10 bg-surface-container text-on-surface rounded font-label-md text-label-md flex items-center justify-center gap-space-xs hover:bg-primary hover:text-on-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-sm">add</span>
+<span class="">Select Item</span>
+</button>
+</div>
+<!-- Card 3: Hass Avocado - Large -->
+<div class="produce-card cursor-pointer bg-surface-container-lowest p-space-md rounded shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative group" data-name="Hass Avocado - Large" data-plu="4225" data-price="1.25" data-type="count" data-unit="each">
+<div class="flex items-start justify-between gap-space-xs">
+<span class="bg-secondary-container text-on-secondary-fixed font-label-md text-label-md px-space-sm py-0.5 rounded shadow-sm">#4225</span>
+<span class="flex items-center gap-1 bg-surface-container-low text-on-surface font-label-sm text-label-sm px-space-xs py-0.5 rounded">
+<span class="material-symbols-outlined text-xs text-secondary">tag</span> By Count
+            </span>
+</div>
+<div class="py-space-sm flex justify-center items-center">
+<img class="w-24 h-24 object-contain transition-transform group-hover:scale-105" data-alt="High resolution commercial photograph of fresh textured Hass avocados with rich dark green bumpy skin isolated on crisp background, soft shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2bx9Ze3i43O3aZNAa4o5tyadnlL1Z5C2GER4TB_-35KAw8TyaTxELnwugh9Sc4tRZnXjUt4qDKJT-AzcVM-3lF4otpS7-vQpmdFe7vzW4ygeGG8-PpEgKqz8krRmsPCeBZjoUi7VAcipcivDwy3RiL5VXd_txUvwjn50kogJr0dwnDR3zSTiUtiuGgR4Jw1h2OSodtNdOpyDMir5yxF0YtfNquEvTDmmKFWZO6HEr1Myflx93Xfad">
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate">Hass Avocado</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Large Size 48s</p>
+<div class="mt-space-xs flex items-baseline justify-between">
+<span class="font-numeric-md text-numeric-md text-primary">$1.25 each</span>
+<span class="font-label-sm text-label-sm text-outline">Dept 04</span>
+</div>
+</div>
+<button class="mt-space-sm w-full h-10 bg-surface-container text-on-surface rounded font-label-md text-label-md flex items-center justify-center gap-space-xs hover:bg-primary hover:text-on-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-sm">add</span>
+<span class="">Select Item</span>
+</button>
+</div>
+<!-- Card 4: Roma Tomatoes -->
+<div class="produce-card cursor-pointer bg-surface-container-lowest p-space-md rounded shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative group selected bg-surface-container-high/40" data-name="Roma Tomatoes" data-plu="4087" data-price="1.49" data-type="scale" data-unit="lb">
+<div class="flex items-start justify-between gap-space-xs">
+<span class="bg-surface-container-high text-on-surface font-label-md text-label-md px-space-sm py-0.5 rounded shadow-sm">#4087</span>
+<span class="flex items-center gap-1 bg-surface-container text-on-surface font-label-sm text-label-sm px-space-xs py-0.5 rounded">
+<span class="material-symbols-outlined text-xs text-primary">scale</span> Scale Req
+            </span>
+</div>
+<div class="py-space-sm flex justify-center items-center">
+<img class="w-24 h-24 object-contain transition-transform group-hover:scale-105" data-alt="Glossy plum red Roma plum tomatoes stacked cleanly on supermarket table, bright natural light, crisp focus with rich red hues" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAs9-uJQkGjMBT5wT4xzyrAaA-nwYhqUbwb_waV5N13X15pNk34dpLygBBBRKn68r0wWy2I6reQM1yL3j9AWhVdrWfKMe99tn--rYfuFEXk0jk-Hk91AA_CUGlNjlrhYCgsWQb_taN9XxBsTxQptvw5K_MdzRXp0ZCyeYBLmbgrOKxkNARawvE_JQSotvnjO6wYj5bIVUADLPDBGp8BZM5pgcYVqV7M-9XWNin9sIV7PXo_tqj_KNQc">
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate">Roma Tomatoes</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Plum Field Grown</p>
+<div class="mt-space-xs flex items-baseline justify-between">
+<span class="font-numeric-md text-numeric-md text-primary">$1.49 / lb</span>
+<span class="font-label-sm text-label-sm text-outline">Dept 04</span>
+</div>
+</div>
+<button class="mt-space-sm w-full h-10 bg-surface-container text-on-surface rounded font-label-md text-label-md flex items-center justify-center gap-space-xs hover:bg-primary hover:text-on-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-sm">add</span>
+<span class="">Select Item</span>
+</button>
+</div>
+<!-- Card 5: Honeycrisp Apples -->
+<div class="produce-card cursor-pointer bg-surface-container-lowest p-space-md rounded shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative group" data-name="Honeycrisp Apples" data-plu="3283" data-price="2.99" data-type="scale" data-unit="lb">
+<div class="flex items-start justify-between gap-space-xs">
+<span class="bg-surface-container-high text-on-surface font-label-md text-label-md px-space-sm py-0.5 rounded shadow-sm">#3283</span>
+<span class="flex items-center gap-1 bg-surface-container text-on-surface font-label-sm text-label-sm px-space-xs py-0.5 rounded">
+<span class="material-symbols-outlined text-xs text-primary">scale</span> Scale Req
+            </span>
+</div>
+<div class="py-space-sm flex justify-center items-center">
+<img class="w-24 h-24 object-contain transition-transform group-hover:scale-105" data-alt="Large Honeycrisp premium apple with yellow and deep red mottled skin, retail clean background with bright specular highlights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1OuezQnrt6LIPHOpoh7OE16sRf3-RKhc79twVTTmq9xvAnaWZCiS8L7xVaFzmRAptrM0Q_j3vo1DZwHnMmuelARado1tWTsUuwArbPu8WZHyyBmhgaDyMzjbM6sycHzHLB7uYPcO5Pt5cL6dltEtDFaMMEA4gyaInQUV12OenG3fmjA-sVbH1nyLK8HACmYqSHkMedMCOUSZugZ7uPwF9wVryJQ1K3KWYNTcNDXwz8vZkdUgVOG7S">
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate">Honeycrisp Apples</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Extra Fancy Washington</p>
+<div class="mt-space-xs flex items-baseline justify-between">
+<span class="font-numeric-md text-numeric-md text-primary">$2.99 / lb</span>
+<span class="font-label-sm text-label-sm text-outline">Dept 04</span>
+</div>
+</div>
+<button class="mt-space-sm w-full h-10 bg-surface-container text-on-surface rounded font-label-md text-label-md flex items-center justify-center gap-space-xs hover:bg-primary hover:text-on-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-sm">add</span>
+<span class="">Select Item</span>
+</button>
+</div>
+<!-- Card 6: English Cucumber -->
+<div class="produce-card cursor-pointer bg-surface-container-lowest p-space-md rounded shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative group" data-name="English Cucumber" data-plu="4593" data-price="1.69" data-type="count" data-unit="each">
+<div class="flex items-start justify-between gap-space-xs">
+<span class="bg-secondary-container text-on-secondary-fixed font-label-md text-label-md px-space-sm py-0.5 rounded shadow-sm">#4593</span>
+<span class="flex items-center gap-1 bg-surface-container-low text-on-surface font-label-sm text-label-sm px-space-xs py-0.5 rounded">
+<span class="material-symbols-outlined text-xs text-secondary">tag</span> By Count
+            </span>
+</div>
+<div class="py-space-sm flex justify-center items-center">
+<img class="w-24 h-24 object-contain transition-transform group-hover:scale-105" data-alt="Long thin dark green English seedless cucumber shrink-wrapped, commercial grocery photography clean white backdrop" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAb3URGzS4xxErYhYxLidsY_UooO3yE304_8zi1dAprTGv2paFup8l1HFWyktfTXAu5CuZOHe8MYVIpBF0lzgXwdAkKn2iCu1NZI1lMYvU5TdmVh_ILPg0FnNFph_6GBXVpecYJVScgj0qI6PVEY7zmTGJOnC73n39w0EZI5D5Mjw1J3hcnx-lfWTeZn9XtUwaUVD_jMDUAUoR70YbAD7yO7EggcPiua0X5vzNAx2lR6KZ99nCu2k-b">
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate">English Cucumber</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Seedless Hot House</p>
+<div class="mt-space-xs flex items-baseline justify-between">
+<span class="font-numeric-md text-numeric-md text-primary">$1.69 each</span>
+<span class="font-label-sm text-label-sm text-outline">Dept 04</span>
+</div>
+</div>
+<button class="mt-space-sm w-full h-10 bg-surface-container text-on-surface rounded font-label-md text-label-md flex items-center justify-center gap-space-xs hover:bg-primary hover:text-on-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-sm">add</span>
+<span class="">Select Item</span>
+</button>
+</div>
+<!-- Card 7: Red Bell Peppers -->
+<div class="produce-card cursor-pointer bg-surface-container-lowest p-space-md rounded shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative group" data-name="Red Bell Peppers" data-plu="4088" data-price="1.99" data-type="scale" data-unit="lb">
+<div class="flex items-start justify-between gap-space-xs">
+<span class="bg-surface-container-high text-on-surface font-label-md text-label-md px-space-sm py-0.5 rounded shadow-sm">#4088</span>
+<span class="flex items-center gap-1 bg-surface-container text-on-surface font-label-sm text-label-sm px-space-xs py-0.5 rounded">
+<span class="material-symbols-outlined text-xs text-primary">scale</span> Scale Req
+            </span>
+</div>
+<div class="py-space-sm flex justify-center items-center">
+<img class="w-24 h-24 object-contain transition-transform group-hover:scale-105" data-alt="Glossy vibrant sweet red bell pepper with green stem, clear supermarket retail photo on pure white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkrnUZ-yHwzqmyQABb5Jg6tH15T1GLnFUJOtosMvwyKl5SiGv9C8hAWtv7sgA4xELI4Z9iExHr-ATgf5wu496-gv8H9uYN9EwEFgVyRPxqGhYyQgHCwpaqUdJmF_ADaLj-iAeqhAn20lOCdau9K9Cgs1aies_YRctk9D4nwSyVE22_bCmSsEqYSuZDZmf-9ZqoAhtiFCAQJHsk36dhxNQvtjOT-yv6h9e90s7X_82AdfLR-YEIJEJJ">
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate">Red Bell Peppers</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Sweet Greenhouse</p>
+<div class="mt-space-xs flex items-baseline justify-between">
+<span class="font-numeric-md text-numeric-md text-primary">$1.99 / lb</span>
+<span class="font-label-sm text-label-sm text-outline">Dept 04</span>
+</div>
+</div>
+<button class="mt-space-sm w-full h-10 bg-surface-container text-on-surface rounded font-label-md text-label-md flex items-center justify-center gap-space-xs hover:bg-primary hover:text-on-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-sm">add</span>
+<span class="">Select Item</span>
+</button>
+</div>
+<!-- Card 8: Lemons Choice -->
+<div class="produce-card cursor-pointer bg-surface-container-lowest p-space-md rounded shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative group" data-name="Lemons Choice" data-plu="4053" data-price="0.79" data-type="count" data-unit="each">
+<div class="flex items-start justify-between gap-space-xs">
+<span class="bg-secondary-container text-on-secondary-fixed font-label-md text-label-md px-space-sm py-0.5 rounded shadow-sm">#4053</span>
+<span class="flex items-center gap-1 bg-surface-container-low text-on-surface font-label-sm text-label-sm px-space-xs py-0.5 rounded">
+<span class="material-symbols-outlined text-xs text-secondary">tag</span> By Count
+            </span>
+</div>
+<div class="py-space-sm flex justify-center items-center">
+<img class="w-24 h-24 object-contain transition-transform group-hover:scale-105" data-alt="Two bright sunny yellow lemons with fresh zest texture on clean grocery store display surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfdm9iAD3y8qnGEcpf7g-Rl5DU5mkdypoKquaPDdbNWMq3Hw1gQTcwH7LdX0b1-WNXuyX7sfSqTo2iFG3_YcImcmnZmyYwZwgcpbLGhVEu1JxyIRRszUYL7EpI10-PFQHuQ6bW1YCuzzB0GV7y7cLBJVfk3G5XsKEdxJtAhK-2QKzjb-EPYT9U8Tnxo6hpxMeBNaGweuzQU0wLwx7xAd5IFNhxgTq4PkIbdYrDMHB9cWzcD-EAyRiI">
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate">Lemons Choice</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Fresh Seeded California</p>
+<div class="mt-space-xs flex items-baseline justify-between">
+<span class="font-numeric-md text-numeric-md text-primary">$0.79 each</span>
+<span class="font-label-sm text-label-sm text-outline">Dept 04</span>
+</div>
+</div>
+<button class="mt-space-sm w-full h-10 bg-surface-container text-on-surface rounded font-label-md text-label-md flex items-center justify-center gap-space-xs hover:bg-primary hover:text-on-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-sm">add</span>
+<span class="">Select Item</span>
+</button>
+</div>
+<!-- Card 9: Yellow Onions -->
+<div class="produce-card cursor-pointer bg-surface-container-lowest p-space-md rounded shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative group" data-name="Yellow Onions" data-plu="4093" data-price="0.99" data-type="scale" data-unit="lb">
+<div class="flex items-start justify-between gap-space-xs">
+<span class="bg-surface-container-high text-on-surface font-label-md text-label-md px-space-sm py-0.5 rounded shadow-sm">#4093</span>
+<span class="flex items-center gap-1 bg-surface-container text-on-surface font-label-sm text-label-sm px-space-xs py-0.5 rounded">
+<span class="material-symbols-outlined text-xs text-primary">scale</span> Scale Req
+            </span>
+</div>
+<div class="py-space-sm flex justify-center items-center">
+<img class="w-24 h-24 object-contain transition-transform group-hover:scale-105" data-alt="Golden crisp yellow storage onions with papery brown skin on supermarket counter under sharp studio lights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOyY5Cwj-4uS7beTbi6sh89pPEQkQeoPCtQy8Rw78lqTOd3ffyTQ02GHjfqEuIeO2wU59ZW0D3Iayy-K02Jrgcl-GZdubyEhV8CqKf0EbAKZXMsf37Gm72tHSmQkCpx6B_UXmOccJI8RbbysnjRIW3TuNDpZKAgbj9AI_2-mmWeDNxcHKx79SKekB3ed5opo1eVrH5I5-jlzwGICK_VyxMr_YyYDNvLcIM4Xs5VXKXO-QfkQqOXWAZ">
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate">Yellow Onions</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Bulk Medium Dry</p>
+<div class="mt-space-xs flex items-baseline justify-between">
+<span class="font-numeric-md text-numeric-md text-primary">$0.99 / lb</span>
+<span class="font-label-sm text-label-sm text-outline">Dept 04</span>
+</div>
+</div>
+<button class="mt-space-sm w-full h-10 bg-surface-container text-on-surface rounded font-label-md text-label-md flex items-center justify-center gap-space-xs hover:bg-primary hover:text-on-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-sm">add</span>
+<span class="">Select Item</span>
+</button>
+</div>
+<!-- Card 10: Broccoli Crowns -->
+<div class="produce-card cursor-pointer bg-surface-container-lowest p-space-md rounded shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative group" data-name="Broccoli Crowns" data-plu="4060" data-price="1.89" data-type="scale" data-unit="lb">
+<div class="flex items-start justify-between gap-space-xs">
+<span class="bg-surface-container-high text-on-surface font-label-md text-label-md px-space-sm py-0.5 rounded shadow-sm">#4060</span>
+<span class="flex items-center gap-1 bg-surface-container text-on-surface font-label-sm text-label-sm px-space-xs py-0.5 rounded">
+<span class="material-symbols-outlined text-xs text-primary">scale</span> Scale Req
+            </span>
+</div>
+<div class="py-space-sm flex justify-center items-center">
+<img class="w-24 h-24 object-contain transition-transform group-hover:scale-105" data-alt="Fresh crisp deep green broccoli crowns with tight florets and short stems, supermarket product photo on pure white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5IilBPGBhPaBCUqHZ-5ZXZSMRovf1Zao4-BlP8UEdqgWhHhMkgDvSAYArumhd8lCm1sABmiIjddURBiYdC7cT30QmLgbZA4dku1sU60TIzv4fHoBCPm3ZgtudmIzp2d_-k3Nxsj20pObHDH_JBXS3OLsahLsouR1JpNjD94p8v8AYZVrXw0lezKXlFsn795tRcJDr54Jj6Zumqmk90fvk4Xe19QPK2PK71rdvEKXsAtqzxeDlW0jv">
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate">Broccoli Crowns</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Short Cut Iced</p>
+<div class="mt-space-xs flex items-baseline justify-between">
+<span class="font-numeric-md text-numeric-md text-primary">$1.89 / lb</span>
+<span class="font-label-sm text-label-sm text-outline">Dept 04</span>
+</div>
+</div>
+<button class="mt-space-sm w-full h-10 bg-surface-container text-on-surface rounded font-label-md text-label-md flex items-center justify-center gap-space-xs hover:bg-primary hover:text-on-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-sm">add</span>
+<span class="">Select Item</span>
+</button>
+</div>
+<!-- Card 11: Limes Persian -->
+<div class="produce-card cursor-pointer bg-surface-container-lowest p-space-md rounded shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative group" data-name="Limes Persian" data-plu="4048" data-price="0.50" data-type="count" data-unit="each">
+<div class="flex items-start justify-between gap-space-xs">
+<span class="bg-secondary-container text-on-secondary-fixed font-label-md text-label-md px-space-sm py-0.5 rounded shadow-sm">#4048</span>
+<span class="flex items-center gap-1 bg-surface-container-low text-on-surface font-label-sm text-label-sm px-space-xs py-0.5 rounded">
+<span class="material-symbols-outlined text-xs text-secondary">tag</span> By Count
+            </span>
+</div>
+<div class="py-space-sm flex justify-center items-center">
+<img class="w-24 h-24 object-contain transition-transform group-hover:scale-105" data-alt="Juicy dark green fresh limes sitting on counter, sharp macro photograph, commercial point-of-sale catalog visual" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAL4TsXqwgP9WJA61EuDA4pBaM_VVSC16VCPQkIwPMspXasZT3S8H8d-FgSyvVb7sQ6BiW6zSMqZzoL0poSbZ6OlFCsDtnHAB-d2tuRJn0xHmni_NtsY0dzBTzw5tZSulspPU7BrQFBzCXr2fwzzcusvWsnWOgSQAx7a479HCA3T2XBQWNIjehchXiuHTrVqt5SjMh-mFk5wtEPfV9yAslLzlcBcjPLUMKCI0a6LIcwuCrTISW31eQX">
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate">Limes Persian</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Seedless Mexico</p>
+<div class="mt-space-xs flex items-baseline justify-between">
+<span class="font-numeric-md text-numeric-md text-primary">$0.50 each</span>
+<span class="font-label-sm text-label-sm text-outline">Dept 04</span>
+</div>
+</div>
+<button class="mt-space-sm w-full h-10 bg-surface-container text-on-surface rounded font-label-md text-label-md flex items-center justify-center gap-space-xs hover:bg-primary hover:text-on-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-sm">add</span>
+<span class="">Select Item</span>
+</button>
+</div>
+<!-- Card 12: Sweet Potatoes Garnet -->
+<div class="produce-card cursor-pointer bg-surface-container-lowest p-space-md rounded shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative group" data-name="Sweet Potatoes (Yams)" data-plu="4816" data-price="1.39" data-type="scale" data-unit="lb">
+<div class="flex items-start justify-between gap-space-xs">
+<span class="bg-surface-container-high text-on-surface font-label-md text-label-md px-space-sm py-0.5 rounded shadow-sm">#4816</span>
+<span class="flex items-center gap-1 bg-surface-container text-on-surface font-label-sm text-label-sm px-space-xs py-0.5 rounded">
+<span class="material-symbols-outlined text-xs text-primary">scale</span> Scale Req
+            </span>
+</div>
+<div class="py-space-sm flex justify-center items-center">
+<img class="w-24 h-24 object-contain transition-transform group-hover:scale-105" data-alt="Deep reddish orange skin garnet sweet potatoes clean unpeeled on grocery shelf, studio commercial lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaYVaiLE6cOTJEDRhKVSbK3xs5ZNwX0WeVvZHCOLwPO37EkNrMt6YZTmNI2NqXXcGgOZ2qYaTcVjpjmuU2kFCAQkxzedRtcpXc6eWFsXN7g948SbkhfHMYRh7yZ8odQNIXihQKjwxyt_FBLkGXK9ZLw8Rph99p-rkfzIvZRW1-g-48F3sAjyF_6bzix_j6J0EtI4twYI8zr9-Fn55ET1I06BY2tnKDmxXtkSZAlZXLk_I78H80ZhcK">
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate">Sweet Potatoes</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Garnet / Red Yams</p>
+<div class="mt-space-xs flex items-baseline justify-between">
+<span class="font-numeric-md text-numeric-md text-primary">$1.39 / lb</span>
+<span class="font-label-sm text-label-sm text-outline">Dept 04</span>
+</div>
+</div>
+<button class="mt-space-sm w-full h-10 bg-surface-container text-on-surface rounded font-label-md text-label-md flex items-center justify-center gap-space-xs hover:bg-primary hover:text-on-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-sm">add</span>
+<span class="">Select Item</span>
+</button>
+</div>
+</div>
+<!-- Quick Fast-Key PLU Bottom Action Bar -->
+<div class="bg-surface-container-lowest p-space-md rounded shadow-sm flex flex-wrap items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-md text-label-md text-on-surface">Common PLU Speed-Keys:</span>
+<div class="flex items-center gap-space-xs">
+<button class="px-space-sm py-1 rounded bg-surface-container-low hover:bg-surface-container text-on-surface font-label-sm text-label-sm font-semibold">4011 Bananas</button>
+<button class="px-space-sm py-1 rounded bg-surface-container-low hover:bg-surface-container text-on-surface font-label-sm text-label-sm font-semibold">4087 Roma Tom</button>
+<button class="px-space-sm py-1 rounded bg-surface-container-low hover:bg-surface-container text-on-surface font-label-sm text-label-sm font-semibold">4225 Avocado</button>
+<button class="px-space-sm py-1 rounded bg-surface-container-low hover:bg-surface-container text-on-surface font-label-sm text-label-sm font-semibold">4060 Broccoli</button>
+<button class="px-space-sm py-1 rounded bg-surface-container-low hover:bg-surface-container text-on-surface font-label-sm text-label-sm font-semibold">4048 Limes</button>
+</div>
+</div>
+<div class="flex items-center gap-space-sm font-label-sm text-label-sm text-on-surface-variant">
+<span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-primary"></span> Catalog synced 2m ago</span>
+<span class="">•</span>
+<span class="">Database: US_PLU_REV2024</span>
+</div>
+</div>
+</div>
+<!-- RIGHT 3.5 COLUMNS: Scale Dock, Quantity Numpad & Cart Tender Confirmation -->
+<div class="col-span-12 xl:col-span-4 2xl:col-span-3 flex flex-col gap-space-md">
+<!-- Live Toledo Scale Terminal Readout -->
+<div class="bg-inverse-surface text-inverse-on-surface p-space-md rounded shadow-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary-fixed-dim text-lg">scale</span>
+<span class="font-label-md text-label-md text-inverse-on-surface uppercase tracking-wider">Avery Berkel In-Counter</span>
+</div>
+<span class="bg-primary px-space-xs py-0.5 rounded font-label-sm text-label-sm text-on-primary font-bold">STABLE</span>
+</div>
+<!-- Hero Weight Output -->
+<div class="bg-black/30 p-space-md rounded flex items-baseline justify-between">
+<div>
+<div class="font-label-sm text-label-sm text-outline-variant uppercase">Net Weight</div>
+<div class="font-numeric-hero text-numeric-hero text-primary-fixed tracking-tight font-mono" id="scale-display">2.33 <span class="text-headline-md font-normal">lb</span></div>
+</div>
+<div class="text-right">
+<div class="font-label-sm text-label-sm text-outline-variant">Gross: 2.35 lb</div>
+<div class="font-label-sm text-label-sm text-primary-fixed-dim" id="tare-display">Tare: -0.01 lb</div>
+</div>
+</div>
+<!-- Tare Presets Ribbon -->
+<div class="flex items-center gap-space-xs pt-space-xs">
+<button class="tare-btn flex-1 py-1.5 px-2 rounded bg-surface-container/10 hover:bg-surface-container/20 text-inverse-on-surface font-label-sm text-label-sm text-center transition-colors" onclick="setTare(0.01, 'Plastic Bag')" type="button">
+            Bag (-0.01)
+          </button>
+<button class="tare-btn flex-1 py-1.5 px-2 rounded bg-surface-container/10 hover:bg-surface-container/20 text-inverse-on-surface font-label-sm text-label-sm text-center transition-colors" onclick="setTare(0.05, 'Paper Tote')" type="button">
+            Paper (-0.05)
+          </button>
+<button class="tare-btn flex-1 py-1.5 px-2 rounded bg-surface-container/10 hover:bg-surface-container/20 text-inverse-on-surface font-label-sm text-label-sm text-center transition-colors" onclick="setTare(0.12, 'Plastic Tub')" type="button">
+            Tub (-0.12)
+          </button>
+<button class="py-1.5 px-3 rounded bg-tertiary-container text-on-tertiary-container font-label-sm text-label-sm font-bold hover:brightness-110 transition-all" onclick="zeroScale()" type="button">
+            ZERO
+          </button>
+</div>
+</div>
+<!-- Live Item Calculation Box -->
+<div class="bg-surface-container-lowest p-space-md rounded shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-start justify-between">
+<div>
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Active Selection</span>
+<h2 class="font-headline-md text-headline-md text-on-surface leading-tight" id="active-item-name">Roma Tomatoes</h2>
+<div class="flex items-center gap-space-sm mt-0.5">
+<span class="bg-primary text-on-primary font-label-sm text-label-sm px-1.5 py-0.5 rounded" id="active-item-plu">PLU #4087</span>
+<span class="font-body-md text-body-md text-on-surface-variant" id="active-item-rate">$1.49 per lb</span>
+</div>
+</div>
+<div class="w-12 h-12 rounded bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-2xl">nutrition</span>
+</div>
+</div>
+<!-- Math Breakdown -->
+<div class="bg-surface-container-low p-space-md rounded flex flex-col gap-space-xs mt-space-xs">
+<div class="flex justify-between items-center font-body-md text-body-md text-on-surface-variant">
+<span id="calc-formula" class="">2.33 lb @ $1.49 / lb</span>
+<span class="font-label-sm text-label-sm text-outline">Dept 04 - Tax Exempt</span>
+</div>
+<div class="flex justify-between items-baseline pt-1">
+<span class="font-label-lg text-label-lg text-on-surface">Item Total:</span>
+<span class="font-numeric-lg text-numeric-lg text-primary font-bold" id="computed-total-price">$3.47</span>
+</div>
+</div>
+</div>
+<!-- Touch Numeric Pad for Quantity / Manual Override -->
+<div class="bg-surface-container-lowest p-space-md rounded shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface">Count / Manual Qty</span>
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm text-outline">Qty:</span>
+<input class="w-16 h-8 text-right bg-surface-container-low px-2 rounded font-numeric-md text-numeric-md text-on-surface focus:outline-none" id="numpad-display" readonly="" type="text" value="1">
+</div>
+</div>
+<!-- 12-Key Numpad Grid -->
+<div class="grid grid-cols-3 gap-space-xs">
+<button class="h-12 rounded bg-surface-container-low hover:bg-surface-container font-headline-sm text-headline-sm text-on-surface flex items-center justify-center transition-colors" onclick="keyPress('7')" type="button">7</button>
+<button class="h-12 rounded bg-surface-container-low hover:bg-surface-container font-headline-sm text-headline-sm text-on-surface flex items-center justify-center transition-colors" onclick="keyPress('8')" type="button">8</button>
+<button class="h-12 rounded bg-surface-container-low hover:bg-surface-container font-headline-sm text-headline-sm text-on-surface flex items-center justify-center transition-colors" onclick="keyPress('9')" type="button">9</button>
+<button class="h-12 rounded bg-surface-container-low hover:bg-surface-container font-headline-sm text-headline-sm text-on-surface flex items-center justify-center transition-colors" onclick="keyPress('4')" type="button">4</button>
+<button class="h-12 rounded bg-surface-container-low hover:bg-surface-container font-headline-sm text-headline-sm text-on-surface flex items-center justify-center transition-colors" onclick="keyPress('5')" type="button">5</button>
+<button class="h-12 rounded bg-surface-container-low hover:bg-surface-container font-headline-sm text-headline-sm text-on-surface flex items-center justify-center transition-colors" onclick="keyPress('6')" type="button">6</button>
+<button class="h-12 rounded bg-surface-container-low hover:bg-surface-container font-headline-sm text-headline-sm text-on-surface flex items-center justify-center transition-colors" onclick="keyPress('1')" type="button">1</button>
+<button class="h-12 rounded bg-surface-container-low hover:bg-surface-container font-headline-sm text-headline-sm text-on-surface flex items-center justify-center transition-colors" onclick="keyPress('2')" type="button">2</button>
+<button class="h-12 rounded bg-surface-container-low hover:bg-surface-container font-headline-sm text-headline-sm text-on-surface flex items-center justify-center transition-colors" onclick="keyPress('3')" type="button">3</button>
+<button class="h-12 rounded bg-error-container text-on-error-container hover:bg-error/20 font-label-md text-label-md flex items-center justify-center transition-colors" onclick="clearKey()" type="button">CLR</button>
+<button class="h-12 rounded bg-surface-container-low hover:bg-surface-container font-headline-sm text-headline-sm text-on-surface flex items-center justify-center transition-colors" onclick="keyPress('0')" type="button">0</button>
+<button class="h-12 rounded bg-surface-container-low hover:bg-surface-container font-label-md text-label-md text-on-surface flex items-center justify-center transition-colors" onclick="keyPress('00')" type="button">00</button>
+</div>
+</div>
+<!-- Massive Checkout Push Action Buttons -->
+<div class="flex flex-col gap-space-xs mt-auto">
+<button class="h-16 w-full bg-primary hover:bg-primary-container text-on-primary rounded font-headline-md text-headline-md flex items-center justify-between px-space-md shadow-md hover:shadow-lg transition-all" id="confirm-push-cart-btn" onclick="pushToCart()" type="button">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-2xl">shopping_cart_checkout</span>
+<span class="">Confirm &amp; Push</span>
+</div>
+<span class="font-numeric-lg text-numeric-lg font-bold bg-primary-container px-space-sm py-1 rounded text-on-primary-container" id="push-btn-price">$3.47</span>
+</button>
+<div class="grid grid-cols-2 gap-space-xs">
+<button class="h-11 bg-surface-container-low hover:bg-surface-container text-on-surface rounded font-label-md text-label-md flex items-center justify-center gap-space-xs transition-colors" onclick="promptPriceCheck()" type="button">
+<span class="material-symbols-outlined text-base">price_check</span>
+<span class="">Check Price</span>
+</button>
+<button class="h-11 bg-surface-container-low hover:bg-surface-container text-on-surface rounded font-label-md text-label-md flex items-center justify-center gap-space-xs transition-colors" onclick="promptManualPlu()" type="button">
+<span class="material-symbols-outlined text-base">dialpad</span>
+<span class="">Manual PLU</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Confirmation Toast Micro-Interaction -->
+<div class="fixed bottom-16 right-space-md bg-inverse-surface text-inverse-on-surface px-space-md py-space-sm rounded shadow-xl flex items-center gap-space-sm opacity-0 pointer-events-none transition-all duration-300 transform translate-y-4 z-50" id="cart-toast">
+<span class="material-symbols-outlined text-primary-fixed text-xl">check_circle</span>
+<div>
+<div class="font-label-md text-label-md" id="toast-title">Item Added to Lane 04 Cart</div>
+<div class="font-body-sm text-body-sm text-inverse-on-surface/80" id="toast-desc">2.34 lb Bananas • $1.61</div>
+</div>
+</div>
+</div>
+<script>
+  // State variables
+  let currentWeight = 2.34;
+  let currentTare = 0.01;
+  let currentPrice = 0.69;
+  let currentUnit = 'lb';
+  let currentItemName = 'Bananas (Conventional)';
+  let currentPLU = '4011';
+  let currentItemType = 'scale';
+  let qtyValue = '1';
+
+  // Calculate and update live displays
+  function recalculate() {
+    const netWeight = Math.max(0, currentWeight - currentTare);
+    let total = 0;
+
+    if (currentItemType === 'scale') {
+      total = netWeight * currentPrice;
+      document.getElementById('calc-formula').innerText = `${netWeight.toFixed(2)} lb @ $${currentPrice.toFixed(2)} / lb`;
+      document.getElementById('scale-display').innerHTML = `${netWeight.toFixed(2)} <span class="text-headline-md font-normal">lb</span>`;
+    } else {
+      const count = parseInt(qtyValue, 10) || 1;
+      total = count * currentPrice;
+      document.getElementById('calc-formula').innerText = `${count} count @ $${currentPrice.toFixed(2)} each`;
+      document.getElementById('scale-display').innerHTML = `<span class="text-headline-sm font-normal text-outline-variant">Scale inactive (count)</span>`;
+    }
+
+    const formatted = `$${total.toFixed(2)}`;
+    document.getElementById('computed-total-price').innerText = formatted;
+    document.getElementById('push-btn-price').innerText = formatted;
+  }
+
+  // Set Tare weight preset
+  function setTare(amount, label) {
+    currentTare = amount;
+    document.getElementById('tare-display').innerText = `Tare: -${amount.toFixed(2)} lb`;
+    recalculate();
+  }
+
+  // Zero the scale
+  function zeroScale() {
+    currentWeight = 0.00;
+    currentTare = 0.00;
+    document.getElementById('tare-display').innerText = `Tare: 0.00 lb`;
+    recalculate();
+  }
+
+  // Touch Numpad operations
+  function keyPress(val) {
+    if (qtyValue === '0' || qtyValue === '1' && val !== '00') {
+      qtyValue = val;
+    } else {
+      qtyValue += val;
+    }
+    if (qtyValue.length > 3) qtyValue = qtyValue.slice(0, 3);
+    document.getElementById('numpad-display').value = qtyValue;
+    recalculate();
+  }
+
+  function clearKey() {
+    qtyValue = '1';
+    document.getElementById('numpad-display').value = qtyValue;
+    recalculate();
+  }
+
+  // Produce Card Selection
+  const cards = document.querySelectorAll('.produce-card');
+  cards.forEach(card => {
+    card.addEventListener('click', () => {
+      cards.forEach(c => {
+        c.classList.remove('selected', 'bg-surface-container-high/40');
+      });
+      card.classList.add('selected', 'bg-surface-container-high/40');
+
+      currentPLU = card.getAttribute('data-plu');
+      currentItemName = card.getAttribute('data-name');
+      currentPrice = parseFloat(card.getAttribute('data-price'));
+      currentUnit = card.getAttribute('data-unit');
+      currentItemType = card.getAttribute('data-type');
+
+      // Update right drawer headers
+      document.getElementById('active-item-name').innerText = currentItemName;
+      document.getElementById('active-item-plu').innerText = `PLU #${currentPLU}`;
+      document.getElementById('active-item-rate').innerText = `$${currentPrice.toFixed(2)} per ${currentUnit}`;
+      
+      qtyValue = '1';
+      document.getElementById('numpad-display').value = qtyValue;
+
+      recalculate();
+    });
+  });
+
+  // Category Filtering Micro-interaction
+  const categoryPills = document.querySelectorAll('.category-pill');
+  categoryPills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      categoryPills.forEach(p => {
+        p.classList.remove('bg-primary', 'text-on-primary');
+        p.classList.add('bg-surface-container-low', 'text-on-surface');
+      });
+      pill.classList.remove('bg-surface-container-low', 'text-on-surface');
+      pill.classList.add('bg-primary', 'text-on-primary');
+    });
+  });
+
+  // Search Filtering
+  const searchInput = document.getElementById('plu-search-input');
+  const clearBtn = document.getElementById('clear-search-btn');
+
+  searchInput.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase().trim();
+    cards.forEach(card => {
+      const name = card.getAttribute('data-name').toLowerCase();
+      const plu = card.getAttribute('data-plu').toLowerCase();
+      if (name.includes(query) || plu.includes(query)) {
+        card.style.display = 'flex';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  });
+
+  clearBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    cards.forEach(card => card.style.display = 'flex');
+  });
+
+  // Push to Cart Toast Notification
+  function pushToCart() {
+    const toast = document.getElementById('cart-toast');
+    const title = document.getElementById('toast-title');
+    const desc = document.getElementById('toast-desc');
+    const total = document.getElementById('computed-total-price').innerText;
+
+    title.innerText = `Added to Lane 04 Cart: ${currentItemName}`;
+    if (currentItemType === 'scale') {
+      const netWeight = Math.max(0, currentWeight - currentTare);
+      desc.innerText = `${netWeight.toFixed(2)} lb @ $${currentPrice.toFixed(2)}/lb • Total ${total}`;
+    } else {
+      desc.innerText = `${qtyValue} item(s) @ $${currentPrice.toFixed(2)}/ea • Total ${total}`;
+    }
+
+    toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
+    toast.classList.add('opacity-100', 'translate-y-0');
+
+    setTimeout(() => {
+      toast.classList.remove('opacity-100', 'translate-y-0');
+      toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
+    }, 2400);
+  }
+
+  function promptPriceCheck() {
+    alert(`Price Check for ${currentItemName} (PLU #${currentPLU}):\nCurrent base price is $${currentPrice.toFixed(2)} / ${currentUnit}.\nNo active promotional sales attached.`);
+  }
+
+  function promptManualPlu() {
+    const code = prompt('Enter 4 or 5 Digit Produce PLU:');
+    if (code) {
+      searchInput.value = code;
+      searchInput.dispatchEvent(new Event('input'));
+    }
+  }
+
+  // Initial Calculation Run
+  recalculate();
+</script></main><footer class="fixed bottom-0 w-full z-40 bg-surface-container-lowest shadow-[0_-1px_8px_rgba(0,0,0,0.04)]"><div class="h-12 w-full px-space-md flex items-center justify-between gap-space-md text-on-surface-variant"><div class="flex items-center gap-space-md font-label-sm text-label-sm overflow-hidden text-ellipsis whitespace-nowrap"><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-sm text-primary">wifi</span><span class="">Edge: 12ms</span></div><div class="hidden md:flex items-center gap-space-xs"><span class="material-symbols-outlined text-sm text-primary">barcode_scanner</span><span class="">Honeywell Xenon Ready</span></div><div class="hidden lg:flex items-center gap-space-xs"><span class="material-symbols-outlined text-sm text-primary">scale</span><span class="">Toledo Avery Berkel Calibrated</span></div><div class="hidden sm:flex items-center gap-space-xs"><span class="material-symbols-outlined text-sm text-primary">print</span><span class="">Epson TM-T88VI (Paper OK)</span></div><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-sm text-outline">meeting_room</span><span class="">Drawer: Closed</span></div></div><div class="hidden xl:flex items-center gap-space-sm font-label-sm text-label-sm text-on-surface"><span class="bg-surface-container px-space-xs py-0.5 rounded text-on-surface-variant">[F2] Void</span><span class="bg-surface-container px-space-xs py-0.5 rounded text-on-surface-variant">[F3] Qty</span><span class="bg-surface-container px-space-xs py-0.5 rounded text-on-surface-variant">[F4] Price Check</span><span class="bg-surface-container px-space-xs py-0.5 rounded text-on-surface-variant">[F7] Hold Cart</span><span class="bg-primary-container px-space-xs py-0.5 rounded text-on-primary-container font-semibold">[F12] Pay</span></div></div></footer>
+
+</body></html>
