@@ -1,15 +1,14 @@
 import { dummyAuth } from "./dummy-auth";
+import { supabaseAuth } from "./supabase-auth";
 import type { AuthProvider } from "./types";
 
 /**
- * Phase 1 returns the dummy provider.
- *
- * Phase 2: implement `supabaseAuth` (signInWithPassword + a `cashiers` row for
- * the badge/role/PIN hash), set NEXT_PUBLIC_POS_AUTH=supabase, and return it
- * here. The login screen and lock overlay consume only this interface.
+ * Phase 2: NEXT_PUBLIC_POS_AUTH=supabase switches sign-in and PIN unlock onto
+ * Supabase Auth + the `cashiers` table. The login screen and lock overlay
+ * consume only this interface, so nothing else has to change.
  */
 export function getAuthProvider(): AuthProvider {
-  // if (process.env.NEXT_PUBLIC_POS_AUTH === "supabase") return supabaseAuth;
+  if (process.env.NEXT_PUBLIC_POS_AUTH === "supabase") return supabaseAuth;
   return dummyAuth;
 }
 

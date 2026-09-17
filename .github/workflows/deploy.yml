@@ -29,8 +29,8 @@ jobs:
           echo "NEXT_PUBLIC_POS_TERMINAL=${NEXT_PUBLIC_POS_TERMINAL:-Main Terminal}" >> .env.local
           echo "NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}" >> .env.local
           echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}" >> .env.local
-          echo "NEXT_PUBLIC_POS_DATA_SOURCE=${NEXT_PUBLIC_POS_DATA_SOURCE:-mock}" >> .env.local
-          echo "NEXT_PUBLIC_POS_AUTH=${NEXT_PUBLIC_POS_AUTH:-dummy}" >> .env.local
+          echo "NEXT_PUBLIC_POS_DATA_SOURCE=${NEXT_PUBLIC_POS_DATA_SOURCE:-supabase}" >> .env.local
+          echo "NEXT_PUBLIC_POS_AUTH=${NEXT_PUBLIC_POS_AUTH:-supabase}" >> .env.local
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}

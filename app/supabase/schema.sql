@@ -253,6 +253,33 @@ $$;
 revoke all on function verify_cashier_pin(text, text) from public;
 grant execute on function verify_cashier_pin(text, text) to authenticated;
 
+-- Lock-screen variant: the terminal only has a PIN (and, for a self-unlock,
+-- the currently signed-in cashier's id) — no badge. Tries every active PIN
+-- hash, or just one cashier's when p_cashier_id narrows it. Called while a
+-- cashier's Supabase Auth session is still live (the lock is a local overlay,
+-- not a sign-out), so `authenticated` is enough.
+create or replace function verify_cashier_pin_by_id(p_pin text, p_cashier_id uuid default null)
+returns table (id uuid, badge text, full_name text, role staff_role)
+language plpgsql
+stable
+security definer
+set search_path = public, extensions
+as $$
+begin
+  return query
+  select c.id, c.badge, c.full_name, c.role
+  from cashiers c
+  where c.active
+    and c.pin_hash is not null
+    and c.pin_hash = crypt(p_pin, c.pin_hash)
+    and (p_cashier_id is null or c.id = p_cashier_id)
+  limit 1;
+end;
+$$;
+
+revoke all on function verify_cashier_pin_by_id(text, uuid) from public;
+grant execute on function verify_cashier_pin_by_id(text, uuid) to authenticated;
+
 -- Convenience for seeding: store a PIN as a bcrypt hash.
 create or replace function set_cashier_pin(p_cashier uuid, p_pin text)
 returns void
