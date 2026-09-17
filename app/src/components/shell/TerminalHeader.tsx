@@ -10,12 +10,14 @@ import { usePos } from "@/lib/store/pos-store";
 import { useSession } from "@/lib/store/session-store";
 import { LANE_NAME, TERMINAL_NAME } from "@/lib/data/session";
 
-const NAV = [
+const BASE_NAV = [
   { href: "/register", label: "Active Register" },
   { href: "/plu", label: "Produce PLU Lookup" },
   { href: "/tender", label: "Tender & Payment" },
   { href: "/manager", label: "Manager & Shift" },
 ];
+
+const MANAGER_NAV = [{ href: "/manager/products", label: "Manage Products" }];
 
 export function TerminalHeader() {
   const pathname = usePathname();
@@ -25,6 +27,8 @@ export function TerminalHeader() {
   const netWeight = Math.max(0, scale.grossLb - scale.tareLb);
   const scaleLabel =
     netWeight <= 0.001 ? "Scale: 0.00 lb ZERO" : `Scale: ${formatWeight(netWeight)} lb NET`;
+
+  const nav = cashier?.role === "manager" ? [...BASE_NAV, ...MANAGER_NAV] : BASE_NAV;
 
   return (
     <header className="fixed top-0 w-full z-50 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
@@ -62,7 +66,7 @@ export function TerminalHeader() {
 
         {/* Screen navigation */}
         <nav className="flex items-center gap-space-xs bg-surface-container-low p-space-xs rounded">
-          {NAV.map((item) => {
+          {nav.map((item) => {
             const active = pathname === item.href;
             return (
               <Link
