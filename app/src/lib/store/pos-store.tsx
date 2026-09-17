@@ -12,6 +12,7 @@ import {
 
 import { DEMO_CART, DEMO_MEMBER, DEFAULT_HARDWARE, LANE_NAME } from "../data/session";
 import { PRODUCT_BY_ID, lookupByCode } from "../data/catalog";
+import { findProductByCodeLive } from "../data/live-lookup";
 import { computeTotals, describeLine, lineNet } from "../money";
 import type {
   CartLine,
@@ -307,7 +308,7 @@ export interface PosContextValue extends PosState {
   addProduct(product: Product, opts?: { qty?: number; weightLb?: number; tareLb?: number }): void;
   addLine(line: CartLine): void;
   /** Scanner / PLU entry. Returns the matched product, or null if unknown. */
-  scanCode(code: string): Product | null;
+  scanCode(code: string): Promise<Product | null>;
   selectLine(id: string | null): void;
   voidLine(id: string): void;
   changeQty(id: string, delta: number): void;
@@ -352,8 +353,11 @@ export function PosProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const scanCode = useCallback(
-    (code: string): Product | null => {
-      const product = lookupByCode(code);
+    async (code: string): Promise<Product | null> => {
+      // The seeded demo catalog is checked first (synchronous, no network);
+      // anything added later through Manage Products only exists in
+      // Supabase, so a miss here falls back to a live lookup before giving up.
+      const product = lookupByCode(code) ?? (await findProductByCodeLive(code));
       if (!product) {
         showToast({ title: "Item not found", detail: `No catalog match for "${code}"`, tone: "error" });
         return null;

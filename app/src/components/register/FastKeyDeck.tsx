@@ -24,11 +24,11 @@ export function FastKeyDeck() {
       .filter((p): p is Product => Boolean(p));
   }, [tabId]);
 
-  const submit = () => {
+  const submit = async () => {
     const value = code.trim();
     if (!value) return;
-    const product = scanCode(value);
     setCode("");
+    const product = await scanCode(value);
     inputRef.current?.focus();
     // Weighed items can't be priced without the scale, so hand off to the dock.
     if (product?.pricingMode === "scale") {
@@ -65,7 +65,7 @@ export function FastKeyDeck() {
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
-                submit();
+                void submit();
               }
             }}
             className="w-full h-12 pl-11 pr-3 bg-surface-container-low rounded-lg font-label-lg text-label-lg text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:bg-surface-container-lowest shadow-inner"
@@ -77,7 +77,7 @@ export function FastKeyDeck() {
         </div>
         <button
           type="button"
-          onClick={submit}
+          onClick={() => void submit()}
           className="h-12 px-space-md bg-primary-container text-on-primary-container rounded-lg font-label-lg text-label-lg hover:bg-primary transition-all flex items-center gap-1 shadow-sm active:translate-y-0.5"
         >
           <span>Enter</span>
