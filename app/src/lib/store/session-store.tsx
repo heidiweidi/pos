@@ -57,28 +57,40 @@ export function SessionProvider({
 
   const signIn = useCallback<SessionContextValue["signIn"]>(
     async (email, password) => {
-      const result = await auth.signIn(email, password);
-      if (!result.ok) return { ok: false, error: result.error };
-      writeSession({
-        cashierId: result.session.cashier.id,
-        signedInAt: result.session.signedInAt,
-        locked: false,
-      });
-      return { ok: true };
+      try {
+        const result = await auth.signIn(email, password);
+        if (!result.ok) return { ok: false, error: result.error };
+        writeSession({
+          cashierId: result.session.cashier.id,
+          signedInAt: result.session.signedInAt,
+          locked: false,
+        });
+        return { ok: true };
+      } catch (error) {
+        // A misconfigured/unreachable auth backend must surface as a clean
+        // error, never leave the caller's "busy" state stuck forever.
+        console.error("[session-store] signIn threw:", error);
+        return { ok: false, error: "Sign-in is unavailable right now. Please try again shortly." };
+      }
     },
     [auth],
   );
 
   const unlock = useCallback<SessionContextValue["unlock"]>(
     async (pin) => {
-      const result = await auth.verifyPin(pin);
-      if (!result.ok) return { ok: false, error: result.error };
-      writeSession({
-        cashierId: result.session.cashier.id,
-        signedInAt: result.session.signedInAt,
-        locked: false,
-      });
-      return { ok: true };
+      try {
+        const result = await auth.verifyPin(pin);
+        if (!result.ok) return { ok: false, error: result.error };
+        writeSession({
+          cashierId: result.session.cashier.id,
+          signedInAt: result.session.signedInAt,
+          locked: false,
+        });
+        return { ok: true };
+      } catch (error) {
+        console.error("[session-store] unlock threw:", error);
+        return { ok: false, error: "Unlock is unavailable right now. Please try again shortly." };
+      }
     },
     [auth],
   );
