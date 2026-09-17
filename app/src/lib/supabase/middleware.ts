@@ -16,21 +16,27 @@ export async function updateSession(request: NextRequest) {
 
   if (!url || !key) return response;
 
-  const supabase = createServerClient(url, key, {
-    cookies: {
-      getAll() {
-        return request.cookies.getAll();
+  try {
+    const supabase = createServerClient(url, key, {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          for (const { name, value, options } of cookiesToSet) {
+            response.cookies.set(name, value, options);
+          }
+        },
       },
-      setAll(cookiesToSet) {
-        for (const { name, value, options } of cookiesToSet) {
-          response.cookies.set(name, value, options);
-        }
-      },
-    },
-  });
+    });
 
-  // Touching getUser() is what performs the refresh; do not remove it.
-  await supabase.auth.getUser();
+    // Touching getUser() is what performs the refresh; do not remove it.
+    await supabase.auth.getUser();
+  } catch (error) {
+    // Never let a misconfigured or unreachable Supabase project take the whole
+    // terminal down — fall back to passing the request through untouched.
+    console.error("[supabase/middleware] updateSession failed, passing through:", error);
+  }
 
   return response;
 }
