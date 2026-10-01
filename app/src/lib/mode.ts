@@ -42,7 +42,7 @@ export function parseConnection(raw: string | null | undefined): SupabaseConnect
     try {
       const parsed = JSON.parse(candidate) as Partial<SupabaseConnection>;
       if (typeof parsed?.url === "string" && typeof parsed?.anonKey === "string" && parsed.url && parsed.anonKey) {
-        return { url: parsed.url, anonKey: parsed.anonKey };
+        return { url: normaliseSupabaseUrl(parsed.url), anonKey: parsed.anonKey.trim() };
       }
     } catch {
       // try the next form
@@ -70,10 +70,20 @@ export function resolveRuntime(modeCookie: string | null | undefined, connection
   return { mode: wanted === "actual" && connection ? "actual" : "demo", connection };
 }
 
-/** Normalises what a person types into the URL box. */
+/**
+ * Normalises what a person types into the URL box down to the bare origin.
+ * Dashboard pages show URLs like `https://xxxx.supabase.co/rest/v1/`; the client
+ * appends its own `/auth/v1/…` and `/rest/v1/…`, so any pasted path would make
+ * Supabase answer "Invalid path specified in request URL".
+ */
 export function normaliseSupabaseUrl(input: string): string {
-  const trimmed = input.trim().replace(/\/+$/, "");
-  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+  const trimmed = input.trim();
+  const withScheme = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+  try {
+    return new URL(withScheme).origin;
+  } catch {
+    return withScheme.replace(/\/+$/, "");
+  }
 }
 
 /* ------------------------------------------------------------ browser side */
