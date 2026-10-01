@@ -114,3 +114,60 @@ export async function deleteProduct(id: string): Promise<void> {
   const { error } = await supabase.from("products").delete().eq("id", id);
   if (error) throw error;
 }
+
+/** How a bulk edit changes each product's category list. */
+export type CategoryEdit = { mode: "add" | "remove" | "replace"; values: string[] };
+
+export interface BulkPatch {
+  department?: Department;
+  /** Only sent together with a department change, when the manager supplies one. */
+  departmentCode?: string;
+  active?: boolean;
+  categories?: CategoryEdit;
+}
+
+/** Lower-case, trimmed, spaces to dashes — matches the seeded slugs ("self-serve"). */
+export function normaliseCategory(input: string): string {
+  return input.trim().toLowerCase().replace(/\s+/g, "-");
+}
+
+function applyCategoryEdit(current: string[], edit: CategoryEdit): string[] {
+  if (edit.mode === "replace") return [...new Set(edit.values)];
+  if (edit.mode === "add") return [...new Set([...current, ...edit.values])];
+  return current.filter((c) => !edit.values.includes(c));
+}
+
+/**
+ * Applies one change to many products. Department / status are a single
+ * `update ... where id in (...)`. Category add/remove depends on each product's
+ * current list, so products are grouped by their resulting list and each group
+ * is one update — a typical bulk edit is one or two round trips, not one per row.
+ * Returns the rows as they now stand.
+ */
+export async function bulkUpdateProducts(rows: ProductAdminRow[], patch: BulkPatch): Promise<ProductAdminRow[]> {
+  const supabase = createClient();
+  const now = new Date().toISOString();
+  const base: Record<string, unknown> = { updated_at: now };
+  if (patch.department) base.department = patch.department;
+  if (patch.department && patch.departmentCode?.trim()) base.department_code = patch.departmentCode.trim();
+  if (patch.active !== undefined) base.active = patch.active;
+
+  // Group by the category list each row ends up with (or one group if untouched).
+  const groups = new Map<string, { ids: string[]; categories?: string[] }>();
+  for (const row of rows) {
+    const next = patch.categories ? applyCategoryEdit(row.categories ?? [], patch.categories) : undefined;
+    const key = next ? JSON.stringify([...next].sort()) : "-";
+    const group = groups.get(key) ?? { ids: [], categories: next };
+    group.ids.push(row.id);
+    groups.set(key, group);
+  }
+
+  const updated: ProductAdminRow[] = [];
+  for (const group of groups.values()) {
+    const update = group.categories ? { ...base, categories: group.categories } : base;
+    const { data, error } = await supabase.from("products").update(update).in("id", group.ids).select("*");
+    if (error) throw error;
+    updated.push(...(data as ProductAdminRow[]));
+  }
+  return updated;
+}

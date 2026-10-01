@@ -3,12 +3,15 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { Icon } from "@/components/ui/Icon";
+import { ProductsBulkBar } from "./ProductsBulkBar";
 import {
+  bulkUpdateProducts,
   createProduct,
   deleteProduct,
   listAllProducts,
   setProductActive,
   updateProduct,
+  type BulkPatch,
   type ProductAdminRow,
   type ProductFormInput,
 } from "@/lib/data/products-admin";
@@ -97,6 +100,8 @@ export function ProductsAdmin() {
   const [categoriesInput, setCategoriesInput] = useState("");
   const [saving, setSaving] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(() => new Set());
+  const [bulkBusy, setBulkBusy] = useState(false);
 
   const isManager = cashier?.role === "manager";
 
@@ -138,6 +143,68 @@ export function ProductsAdmin() {
         (p.sku ?? "").includes(q),
     );
   }, [products, query]);
+
+  const existingCategories = useMemo(
+    () => [...new Set(products.flatMap((p) => p.categories ?? []))].sort(),
+    [products],
+  );
+  const departmentCodes = useMemo(() => {
+    const codes: Record<string, string> = {};
+    for (const p of products) codes[p.department] ??= p.department_code;
+    return codes;
+  }, [products]);
+
+  const allFilteredSelected = filtered.length > 0 && filtered.every((p) => selected.has(p.id));
+
+  function toggleRow(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAllFiltered() {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      for (const p of filtered) {
+        if (allFilteredSelected) next.delete(p.id);
+        else next.add(p.id);
+      }
+      return next;
+    });
+  }
+
+  async function applyBulk(patch: BulkPatch) {
+    const rows = products.filter((p) => selected.has(p.id));
+    if (rows.length === 0) return;
+    const parts = [
+      patch.department ? `move to ${patch.department}` : null,
+      patch.categories ? `${patch.categories.mode} categories (${patch.categories.values.join(", ")})` : null,
+      patch.active === undefined ? null : patch.active ? "set active" : "set inactive",
+    ].filter(Boolean);
+    if (!window.confirm(`Apply to ${rows.length} product${rows.length === 1 ? "" : "s"}: ${parts.join("; ")}?`)) return;
+
+    setBulkBusy(true);
+    try {
+      const updated = await bulkUpdateProducts(rows, patch);
+      const byId = new Map(updated.map((u) => [u.id, u]));
+      setProducts((prev) => prev.map((p) => byId.get(p.id) ?? p));
+      setSelected(new Set());
+      showToast({ title: `Updated ${updated.length} product${updated.length === 1 ? "" : "s"}`, tone: "success" });
+      void refreshCatalog();
+    } catch (error) {
+      console.error("[ProductsAdmin] bulk update failed:", error);
+      showToast({
+        title: "Bulk edit failed",
+        detail: error instanceof Error ? error.message : "Some changes may not have been saved — refresh and check.",
+        tone: "error",
+      });
+    } finally {
+      setBulkBusy(false);
+    }
+  }
 
   function startAdd() {
     setEditingId(null);
@@ -311,6 +378,18 @@ export function ProductsAdmin() {
         />
       ) : null}
 
+      {selected.size > 0 ? (
+        <ProductsBulkBar
+          count={selected.size}
+          departments={DEPARTMENTS}
+          departmentCodes={departmentCodes}
+          existingCategories={existingCategories}
+          busy={bulkBusy}
+          onApply={(patch) => void applyBulk(patch)}
+          onClear={() => setSelected(new Set())}
+        />
+      ) : null}
+
       <div className="bg-surface-container-lowest rounded-xl p-space-md shadow-sm">
         <div className="flex items-center gap-space-sm mb-space-sm">
           <div className="relative flex-1 max-w-sm">
@@ -345,8 +424,18 @@ export function ProductsAdmin() {
             <table className="w-full text-left">
               <thead>
                 <tr className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider border-b border-surface-container-high">
+                  <th className="py-space-xs pr-space-sm w-8">
+                    <input
+                      type="checkbox"
+                      checked={allFilteredSelected}
+                      onChange={toggleAllFiltered}
+                      aria-label="Select all shown products"
+                      className="w-4 h-4 accent-primary"
+                    />
+                  </th>
                   <th className="py-space-xs pr-space-sm">Product</th>
                   <th className="py-space-xs pr-space-sm">Department</th>
+                  <th className="py-space-xs pr-space-sm">Categories</th>
                   <th className="py-space-xs pr-space-sm">Price</th>
                   <th className="py-space-xs pr-space-sm">Codes</th>
                   <th className="py-space-xs pr-space-sm">Tax</th>
@@ -362,6 +451,15 @@ export function ProductsAdmin() {
                     className={`border-b border-surface-container-low ${row.active ? "" : "opacity-50"}`}
                   >
                     <td className="py-space-sm pr-space-sm">
+                      <input
+                        type="checkbox"
+                        checked={selected.has(row.id)}
+                        onChange={() => toggleRow(row.id)}
+                        aria-label={`Select ${row.name}`}
+                        className="w-4 h-4 accent-primary"
+                      />
+                    </td>
+                    <td className="py-space-sm pr-space-sm">
                       <div className="font-label-md text-label-md text-on-surface">{row.name}</div>
                       {row.subtitle ? (
                         <div className="font-body-sm text-body-sm text-on-surface-variant">
@@ -371,6 +469,18 @@ export function ProductsAdmin() {
                     </td>
                     <td className="py-space-sm pr-space-sm font-body-sm text-body-sm text-on-surface-variant">
                       {row.department}
+                    </td>
+                    <td className="py-space-sm pr-space-sm">
+                      <div className="flex flex-wrap gap-1 max-w-[16rem]">
+                        {(row.categories ?? []).map((c) => (
+                          <span
+                            key={c}
+                            className="px-1.5 py-0.5 rounded-full bg-surface-container font-label-sm text-label-sm text-on-surface-variant"
+                          >
+                            {c}
+                          </span>
+                        ))}
+                      </div>
                     </td>
                     <td className="py-space-sm pr-space-sm font-numeric-md text-numeric-md text-on-surface">
                       {formatMoney(row.unit_price_cents)}
