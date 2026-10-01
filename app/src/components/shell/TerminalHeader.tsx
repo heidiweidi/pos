@@ -30,6 +30,7 @@ const MANAGER_NAV: NavItem[] = [
   { href: "/manager/products", label: "Manage Products" },
   { href: "/manager/addons", label: "Add-ons" },
   { href: "/manager/region", label: "Currency & Tax" },
+  { href: "/manager/staff", label: "Staff" },
   { href: "/manager/mode", label: "Data Mode" },
 ];
 
