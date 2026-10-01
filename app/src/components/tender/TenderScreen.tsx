@@ -8,16 +8,22 @@ import { ReceiptModal } from "./ReceiptModal";
 import { TenderMethodGrid } from "./TenderMethodGrid";
 import { Avatar } from "@/components/ui/Avatar";
 import { Icon } from "@/components/ui/Icon";
-import { TAX_RATE, formatMoney, lineNet } from "@/lib/money";
+import { formatMoney, lineNet } from "@/lib/money";
+import { DISCOUNT_LABELS } from "@/lib/region";
+import { useRegion } from "@/lib/store/region-store";
+import { useAddons } from "@/lib/store/addons-store";
 import { usePos } from "@/lib/store/pos-store";
 import type { TenderKind } from "@/lib/types";
 
 export function TenderScreen() {
   const router = useRouter();
+  const { addons } = useAddons();
+  const { currency, region } = useRegion();
   const params = useSearchParams();
   const {
     lines,
     member,
+    discount,
     totals,
     tenders,
     amountTendered,
@@ -148,7 +154,7 @@ export function TenderScreen() {
         setMethod("cash");
       } else if (event.key === "F8") {
         event.preventDefault();
-        setMethod("ebt_cash");
+        if (addons.ebt) setMethod("ebt_cash");
       } else if (event.key === "F9") {
         event.preventDefault();
         setHardware({ drawerOpen: true });
@@ -160,7 +166,7 @@ export function TenderScreen() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [lastReceipt, newCart, router, setHardware, showToast]);
+  }, [addons.ebt, lastReceipt, newCart, router, setHardware, showToast]);
 
   return (
     <div className="p-space-md max-w-[1920px] mx-auto w-full">
@@ -205,6 +211,7 @@ export function TenderScreen() {
               />
             </div>
           </div>
+          {addons.ebt ? (
           <button
             type="button"
             onClick={applyEbtSplit}
@@ -213,6 +220,7 @@ export function TenderScreen() {
             <Icon name="call_split" className="text-sm" />
             <span>Split Tender</span>
           </button>
+          ) : null}
         </div>
       </div>
 
@@ -233,7 +241,7 @@ export function TenderScreen() {
               <span className="font-headline-xl text-numeric-hero font-bold tracking-tight text-surface-bright">
                 {formatMoney(totals.total)}
               </span>
-              <span className="font-label-sm text-label-sm text-inverse-on-surface/70">USD</span>
+              <span className="font-label-sm text-label-sm text-inverse-on-surface/70">{currency.code}</span>
             </div>
             <div className="mt-space-xs pt-space-xs border-t border-inverse-on-surface/20 flex items-center justify-between font-body-sm text-body-sm text-inverse-on-surface/90">
               <span>Remaining Unpaid Balance:</span>
@@ -250,40 +258,73 @@ export function TenderScreen() {
                 <Icon name="receipt_long" className="text-primary text-base" />
                 Subtotal &amp; Tax Breakdown
               </span>
-              <span className="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-tertiary-fixed text-on-tertiary-fixed">
-                USDA SNAP Approved
-              </span>
+              {addons.ebt ? (
+                <span className="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-tertiary-fixed text-on-tertiary-fixed">
+                  USDA SNAP Approved
+                </span>
+              ) : null}
             </div>
             <div className="space-y-space-xs font-body-sm text-body-sm">
-              <BreakdownRow
-                dot="bg-primary"
-                label="SNAP / EBT Food Eligible:"
-                value={formatMoney(totals.ebtEligible)}
-                bold
-              />
-              <BreakdownRow
-                dot="bg-secondary"
-                label="Non-SNAP Taxable Items:"
-                value={formatMoney(totals.nonEbtTaxable)}
-                bold
-              />
-              <BreakdownRow
-                label={`State Sales Tax (${(TAX_RATE * 100).toFixed(2)}%):`}
-                value={formatMoney(totals.tax)}
-                indent
-              />
-              <BreakdownRow
-                label="Bottle Deposit:"
-                value={formatMoney(totals.deposits)}
-                indent
-              />
-              {totals.discounts > 0 ? (
+              {addons.ebt ? (
+                <>
+                  <BreakdownRow
+                    dot="bg-primary"
+                    label="SNAP / EBT Food Eligible:"
+                    value={formatMoney(totals.ebtEligible)}
+                    bold
+                  />
+                  <BreakdownRow
+                    dot="bg-secondary"
+                    label="Non-SNAP Taxable Items:"
+                    value={formatMoney(totals.nonEbtTaxable)}
+                    bold
+                  />
+                </>
+              ) : null}
+              {totals.taxInclusive ? (
+                discount ? (
+                  <>
+                    <BreakdownRow label="VAT-Exempt Sales:" value={formatMoney(totals.vatExemptSales)} bold />
+                    <BreakdownRow
+                      label="Less: VAT Exemption:"
+                      value={`-${formatMoney(totals.scpwdVatRemoved)}`}
+                      indent
+                    />
+                    <BreakdownRow
+                      label={`Less: ${DISCOUNT_LABELS[discount.kind].replace(/ \(.*\)/, "")} ${region.seniorPwdPct}%:`}
+                      value={`-${formatMoney(totals.scpwdDiscount)}`}
+                      indent
+                    />
+                    <BreakdownRow label={`ID ${discount.idNumber}:`} value={discount.holderName} indent />
+                  </>
+                ) : region.vatRegistered ? (
+                  <>
+                    <BreakdownRow label="VATable Sales:" value={formatMoney(totals.vatableSales)} bold />
+                    <BreakdownRow label="VAT-Exempt Sales:" value={formatMoney(totals.vatExemptSales)} bold />
+                    <BreakdownRow
+                      label={`VAT (${region.taxRatePct}%, included):`}
+                      value={formatMoney(totals.tax)}
+                      indent
+                    />
+                  </>
+                ) : null
+              ) : (
+                <BreakdownRow
+                  label={`${currency.taxName} (${region.taxRatePct}%):`}
+                  value={formatMoney(totals.tax)}
+                  indent
+                />
+              )}
+              {totals.deposits > 0 || !totals.taxInclusive ? (
+                <BreakdownRow label="Bottle Deposit:" value={formatMoney(totals.deposits)} indent />
+              ) : null}
+              {totals.discounts - totals.scpwdDiscount > 0 ? (
                 <div className="flex justify-between items-center py-1 bg-surface-container-low px-space-xs rounded">
                   <span className="text-primary font-semibold flex items-center gap-1">
                     <Icon name="local_offer" className="text-base" /> Loyalty Member Saving:
                   </span>
                   <span className="font-numeric-md text-numeric-md text-primary font-bold">
-                    -{formatMoney(totals.discounts)}
+                    -{formatMoney(totals.discounts - totals.scpwdDiscount)}
                   </span>
                 </div>
               ) : null}
@@ -320,10 +361,20 @@ export function TenderScreen() {
                       </div>
                       <span
                         className={`font-label-sm text-label-sm ${
-                          line.ebtEligible ? "text-primary" : "text-secondary"
+                          line.ebtEligible && addons.ebt ? "text-primary" : "text-secondary"
                         }`}
                       >
-                        {line.ebtEligible ? "EBT Eligible" : "Non-SNAP Taxable"}
+                        {addons.ebt
+                          ? line.ebtEligible
+                            ? "EBT Eligible"
+                            : "Non-SNAP Taxable"
+                          : currency.taxMode === "vat"
+                            ? line.taxFlag === "T"
+                              ? "VATable"
+                              : "VAT-Exempt"
+                            : line.taxFlag === "T"
+                              ? "Taxable"
+                              : "Tax-free"}
                         {line.depositCents ? ` + ${formatMoney(line.depositCents)} Dep` : ""}
                       </span>
                     </div>

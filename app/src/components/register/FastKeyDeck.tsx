@@ -4,25 +4,32 @@ import { useRouter } from "next/navigation";
 import { useMemo, useRef, useState } from "react";
 
 import { Icon } from "@/components/ui/Icon";
-import { FAST_KEY_TABS, PRODUCT_BY_ID } from "@/lib/data/catalog";
 import { formatMoney } from "@/lib/money";
+import { useAddons } from "@/lib/store/addons-store";
+import { useCatalog } from "@/lib/store/catalog-store";
 import { usePos } from "@/lib/store/pos-store";
 import type { Product } from "@/lib/types";
 
 /** Centre column: scan dock, department tabs, 3-up fast-key tile grid. */
 export function FastKeyDeck() {
   const router = useRouter();
+  const { addons } = useAddons();
+  const { fastKeyTabs, byId, loading, error } = useCatalog();
   const { scanCode, addProduct, showToast } = usePos();
   const [code, setCode] = useState("");
-  const [tabId, setTabId] = useState(FAST_KEY_TABS[0].id);
+  const [tabId, setTabId] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const tiles = useMemo(() => {
-    const tab = FAST_KEY_TABS.find((t) => t.id === tabId) ?? FAST_KEY_TABS[0];
+    const tab = fastKeyTabs.find((t) => t.id === tabId) ?? fastKeyTabs[0];
+    if (!tab) return [];
     return tab.productIds
-      .map((id) => PRODUCT_BY_ID.get(id))
-      .filter((p): p is Product => Boolean(p));
-  }, [tabId]);
+      .map((id) => byId.get(id))
+      .filter((p): p is Product => Boolean(p))
+      // Weighed items can't be sold without the Scale add-on.
+      .filter((p) => addons.scale || p.pricingMode !== "scale");
+  }, [tabId, fastKeyTabs, byId, addons.scale]);
+  const activeTabId = fastKeyTabs.find((t) => t.id === tabId)?.id ?? fastKeyTabs[0]?.id;
 
   const submit = async () => {
     const value = code.trim();
@@ -31,7 +38,7 @@ export function FastKeyDeck() {
     const product = await scanCode(value);
     inputRef.current?.focus();
     // Weighed items can't be priced without the scale, so hand off to the dock.
-    if (product?.pricingMode === "scale") {
+    if (addons.scale && product?.pricingMode === "scale") {
       router.push(`/plu?plu=${product.plu ?? ""}`);
     }
   };
@@ -69,7 +76,7 @@ export function FastKeyDeck() {
               }
             }}
             className="w-full h-12 pl-11 pr-3 bg-surface-container-low rounded-lg font-label-lg text-label-lg text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:bg-surface-container-lowest shadow-inner"
-            placeholder="Scan Barcode / Enter PLU (e.g. 4011)"
+            placeholder={addons.scale ? "Scan Barcode / Enter PLU (e.g. 4011)" : "Scan Barcode / Enter Item Code"}
             type="text"
             inputMode="numeric"
             aria-label="Scan barcode or enter PLU"
@@ -87,13 +94,13 @@ export function FastKeyDeck() {
 
       {/* Department tabs */}
       <div className="flex items-center gap-space-xs overflow-x-auto no-scrollbar shrink-0 py-0.5">
-        {FAST_KEY_TABS.map((tab) => (
+        {fastKeyTabs.map((tab) => (
           <button
             key={tab.id}
             type="button"
             onClick={() => setTabId(tab.id)}
             className={`px-space-md py-2 rounded-lg font-label-md text-label-md shadow-sm whitespace-nowrap transition-colors ${
-              tab.id === tabId
+              tab.id === activeTabId
                 ? "bg-primary text-on-primary"
                 : "bg-surface-container-lowest text-on-surface hover:bg-surface-container-high"
             }`}
@@ -105,6 +112,16 @@ export function FastKeyDeck() {
 
       {/* Fast-key tiles */}
       <div className="flex-1 bg-surface-container-lowest p-space-sm rounded-xl shadow-md overflow-y-auto pos-scroll">
+        {tiles.length === 0 ? (
+          <div className="h-full flex flex-col items-center justify-center gap-space-xs text-on-surface-variant text-center p-space-lg">
+            <Icon name="inventory_2" className="text-4xl text-outline-variant" />
+            <p className="font-label-md text-label-md">
+              {loading
+                ? "Loading inventory…"
+                : (error ?? "No products yet — scan a code, or a manager can add items in Manage Products")}
+            </p>
+          </div>
+        ) : null}
         <div className="grid grid-cols-3 gap-space-xs">
           {tiles.map((product, index) => {
             const isScale = product.pricingMode === "scale";

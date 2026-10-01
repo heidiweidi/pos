@@ -1,13 +1,17 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { DrawerCount } from "./DrawerCount";
 import { Avatar } from "@/components/ui/Avatar";
 import { Icon } from "@/components/ui/Icon";
-import { DEMO_SHIFT, DENOMINATIONS } from "@/lib/data/session";
+import { getShiftSummaryAction } from "@/lib/data/actions";
+import { DEMO_SHIFT, LANE_NAME, denominationsFor } from "@/lib/data/session";
 import { formatMoney } from "@/lib/money";
+import { useMode } from "@/lib/store/mode-store";
+import type { ShiftSummary } from "@/lib/types";
+import { useRegion } from "@/lib/store/region-store";
 import { usePos } from "@/lib/store/pos-store";
 import { useSession } from "@/lib/store/session-store";
 
@@ -22,7 +26,43 @@ export function ManagerScreen() {
   const router = useRouter();
   const { cashier, lock } = useSession();
   const { hardware, showToast, setHardware } = usePos();
-  const shift = DEMO_SHIFT;
+  const mode = useMode();
+
+  // Demo mode shows the sample shift. Actual mode starts from an empty one and
+  // fills in the cashier's real open shift from Supabase.
+  const [liveShift, setLiveShift] = useState<ShiftSummary | null>(null);
+  useEffect(() => {
+    if (mode !== "actual" || !cashier?.shiftId) return;
+    let cancelled = false;
+    void getShiftSummaryAction(cashier.shiftId).then((result) => {
+      if (!cancelled && result) setLiveShift(result);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [mode, cashier?.shiftId]);
+  const shift: ShiftSummary =
+    mode === "demo"
+      ? DEMO_SHIFT
+      : (liveShift ?? {
+          id: cashier?.shiftId ?? "",
+          lane: LANE_NAME,
+          cashierName: cashier?.name ?? "",
+          badge: cashier?.badge ?? "",
+          startedAt: cashier?.shiftStart ?? "",
+          endsAt: cashier?.shiftEnd ?? "",
+          grossSalesCents: 0,
+          transactionCount: 0,
+          averageBasketCents: 0,
+          scanVelocity: 0,
+          openingFloatCents: 0,
+          cashSalesCents: 0,
+          safeDrops: [],
+          overrides: [],
+        });
+  const { currency } = useRegion();
+  // Stable per currency (the shell remounts this screen if the currency changes).
+  const DENOMINATIONS = denominationsFor(currency.code);
 
   const [counts, setCounts] = useState<Record<string, number>>(() =>
     Object.fromEntries(DENOMINATIONS.map((d) => [d.id, d.defaultCount])),
@@ -38,7 +78,7 @@ export function ManagerScreen() {
         // The coin row is entered as a dollar amount, not a piece count.
         return sum + (denom.valueCents === null ? entered : entered * denom.valueCents);
       }, 0),
-    [counts],
+    [counts, DENOMINATIONS],
   );
 
   const variance = counted - expected;
@@ -295,7 +335,7 @@ export function ManagerScreen() {
                 <Icon name="payments" className="text-primary text-xl" />
                 <div className="text-left min-w-0">
                   <span className="font-label-md text-label-md block truncate">
-                    Execute Safe Cash Drop ($500.00)
+                    Execute Safe Cash Drop ({formatMoney(currency.safeDropCents)})
                   </span>
                   <span className="block font-body-sm text-body-sm text-outline truncate">
                     Generate tamper seal voucher #4119

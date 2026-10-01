@@ -372,3 +372,21 @@ create policy "overrides follow shift" on override_log for all
 create policy "counts follow shift" on drawer_counts for all
   using (exists (select 1 from shifts s where s.id = shift_id and (s.cashier_id = auth.uid() or is_supervisor())))
   with check (exists (select 1 from shifts s where s.id = shift_id and s.cashier_id = auth.uid()));
+
+-- ---------------------------------------------------------------------------
+-- Add-on switches (see addons.sql)
+-- ---------------------------------------------------------------------------
+create table if not exists app_settings (
+  key        text primary key,
+  value      jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+
+alter table app_settings enable row level security;
+
+drop policy if exists "staff read settings" on app_settings;
+create policy "staff read settings" on app_settings for select using (is_staff());
+
+drop policy if exists "managers write settings" on app_settings;
+create policy "managers write settings" on app_settings for all
+  using (current_staff_role() = 'manager') with check (current_staff_role() = 'manager');

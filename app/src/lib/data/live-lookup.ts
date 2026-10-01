@@ -1,3 +1,4 @@
+import { readClientRuntime } from "../mode";
 import { createClient } from "../supabase/client";
 import type { Department, PricingMode, Product, TaxFlag } from "../types";
 
@@ -25,7 +26,7 @@ interface LiveProductRow {
   categories: string[] | null;
 }
 
-function mapRow(row: LiveProductRow): Product {
+export function mapRow(row: LiveProductRow): Product {
   return {
     id: row.id,
     plu: row.plu ?? undefined,
@@ -66,7 +67,7 @@ function mapRow(row: LiveProductRow): Product {
  * degrade to "no match" rather than breaking the scan dock.
  */
 export async function findProductByCodeLive(code: string): Promise<Product | null> {
-  if (process.env.NEXT_PUBLIC_POS_DATA_SOURCE !== "supabase") return null;
+  if (readClientRuntime().mode !== "actual") return null;
   const q = code.trim();
   if (!q) return null;
 

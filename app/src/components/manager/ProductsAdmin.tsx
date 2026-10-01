@@ -12,7 +12,10 @@ import {
   type ProductAdminRow,
   type ProductFormInput,
 } from "@/lib/data/products-admin";
-import { formatMoney, parseDollarsToCents } from "@/lib/money";
+import { currencySymbol, formatMoney, parseDollarsToCents } from "@/lib/money";
+import { useRegion } from "@/lib/store/region-store";
+import { useCatalog } from "@/lib/store/catalog-store";
+import { useMode } from "@/lib/store/mode-store";
 import { usePos } from "@/lib/store/pos-store";
 import { useSession } from "@/lib/store/session-store";
 import type { Department, PricingMode, TaxFlag } from "@/lib/types";
@@ -78,6 +81,8 @@ function codeSummary(row: ProductAdminRow): string {
 
 export function ProductsAdmin() {
   const { cashier } = useSession();
+  const mode = useMode();
+  const { refresh: refreshCatalog } = useCatalog();
   const { showToast } = usePos();
 
   const [products, setProducts] = useState<ProductAdminRow[]>([]);
@@ -112,14 +117,14 @@ export function ProductsAdmin() {
   }
 
   useEffect(() => {
-    if (!isManager) return;
+    if (!isManager || mode !== "actual") return;
     // A one-time catalog fetch on mount, same shape as any client-side data
     // load — the resulting setState calls run after the promise settles, not
     // synchronously in this callback. Suppressing the newer set-state-in-effect
     // rule here rather than pulling in a fetching library for one admin screen.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void refresh();
-  }, [isManager]);
+  }, [isManager, mode]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -185,10 +190,12 @@ export function ProductsAdmin() {
         const updated = await updateProduct(editingId, input);
         setProducts((prev) => prev.map((p) => (p.id === editingId ? updated : p)));
         showToast({ title: `Updated ${updated.name}`, tone: "success" });
+        void refreshCatalog();
       } else {
         const created = await createProduct(input);
         setProducts((prev) => [...prev, created]);
         showToast({ title: `Added ${created.name}`, tone: "success" });
+        void refreshCatalog();
       }
       setFormOpen(false);
       setEditingId(null);
@@ -208,6 +215,7 @@ export function ProductsAdmin() {
     try {
       await setProductActive(row.id, !row.active);
       setProducts((prev) => prev.map((p) => (p.id === row.id ? { ...p, active: !p.active } : p)));
+      void refreshCatalog();
       showToast({
         title: row.active ? `${row.name} deactivated` : `${row.name} reactivated`,
         tone: row.active ? "warning" : "success",
@@ -223,6 +231,7 @@ export function ProductsAdmin() {
     try {
       await deleteProduct(row.id);
       setProducts((prev) => prev.filter((p) => p.id !== row.id));
+      void refreshCatalog();
       showToast({ title: `Deleted ${row.name}`, tone: "success" });
     } catch (error) {
       console.error("[ProductsAdmin] delete failed:", error);
@@ -242,6 +251,20 @@ export function ProductsAdmin() {
           <h1 className="font-headline-sm text-headline-sm text-on-surface">Manager access required</h1>
           <p className="font-body-md text-body-md text-on-surface-variant">
             Product management is limited to manager accounts. Ask a manager to sign in to make changes here.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (mode !== "actual") {
+    return (
+      <div className="p-space-md max-w-xl mx-auto w-full">
+        <div className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm text-center flex flex-col items-center gap-space-sm">
+          <Icon name="science" className="text-4xl text-tertiary" />
+          <h1 className="font-headline-sm text-headline-sm text-on-surface">Demo mode</h1>
+          <p className="font-body-md text-body-md text-on-surface-variant">
+            Products are managed in your Supabase inventory. Switch to Actual mode under Data Mode to connect it.
           </p>
         </div>
       </div>
@@ -444,6 +467,7 @@ function ProductForm({
   onSubmit: (e: React.FormEvent) => void;
   onCancel: () => void;
 }) {
+  const { currency } = useRegion();
   return (
     <form
       onSubmit={onSubmit}
@@ -527,7 +551,7 @@ function ProductForm({
 
         <Field label="Unit price *" hint={form.pricingMode === "scale" ? "Per pound" : "Per item"}>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-outline">$</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-outline">{currencySymbol()}</span>
             <input
               required
               inputMode="decimal"
@@ -545,14 +569,14 @@ function ProductForm({
             onChange={(e) => setForm((f) => ({ ...f, taxFlag: e.target.value as typeof f.taxFlag }))}
             className={inputClass}
           >
-            <option value="F">F — Food (tax-exempt)</option>
-            <option value="T">T — Taxable merchandise</option>
+            <option value="F">{currency.taxMode === "vat" ? "E — VAT-exempt" : "F — Food (tax-exempt)"}</option>
+            <option value="T">{currency.taxMode === "vat" ? "V — VATable" : "T — Taxable merchandise"}</option>
           </select>
         </Field>
 
         <Field label="Container deposit" hint="e.g. CRV, leave blank if none">
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-outline">$</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-outline">{currencySymbol()}</span>
             <input
               inputMode="decimal"
               value={depositInput}

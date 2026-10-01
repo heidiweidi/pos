@@ -2,6 +2,9 @@
 
 import { Icon } from "@/components/ui/Icon";
 import { formatMoney, formatWeight, lineGross, lineNet, quantityLabel } from "@/lib/money";
+import { DISCOUNT_LABELS } from "@/lib/region";
+import { useAddons } from "@/lib/store/addons-store";
+import { useRegion } from "@/lib/store/region-store";
 import { usePos } from "@/lib/store/pos-store";
 
 /**
@@ -9,10 +12,14 @@ import { usePos } from "@/lib/store/pos-store";
  * summary with the emerald Total Balance Due box.
  */
 export function ReceiptTape() {
+  const { addons } = useAddons();
+  const { currency, region } = useRegion();
   const {
     lines,
     selectedLineId,
     member,
+    discount,
+    setDiscount,
     totals,
     selectLine,
     voidLine,
@@ -42,7 +49,7 @@ export function ReceiptTape() {
   return (
     <div className="col-span-12 lg:col-span-5 flex flex-col h-full bg-surface-container-lowest rounded-xl shadow-md overflow-hidden">
       {/* Loyalty member banner */}
-      {member ? (
+      {!addons.loyalty ? null : member ? (
         <div className="bg-primary-container px-space-md py-space-sm text-on-primary-container flex items-center justify-between shadow-sm shrink-0">
           <div className="flex items-center gap-space-sm min-w-0">
             <div className="w-8 h-8 rounded-full bg-surface-container-lowest/20 flex items-center justify-center shrink-0">
@@ -76,6 +83,23 @@ export function ReceiptTape() {
           No loyalty member attached • Alt+C to look up
         </div>
       )}
+
+      {/* Senior Citizen / PWD discount banner */}
+      {discount ? (
+        <div className="bg-tertiary-container px-space-md py-space-xs text-on-tertiary-container flex items-center justify-between gap-space-sm shrink-0">
+          <div className="min-w-0 font-label-md text-label-md truncate">
+            <Icon name="percent" className="text-base align-middle mr-1" />
+            {DISCOUNT_LABELS[discount.kind]} • {discount.holderName} • ID {discount.idNumber}
+          </div>
+          <button
+            type="button"
+            onClick={() => setDiscount(null)}
+            className="px-space-sm py-0.5 rounded bg-surface-container-lowest/30 hover:bg-surface-container-lowest/50 font-label-sm text-label-sm shrink-0"
+          >
+            Remove
+          </button>
+        </div>
+      ) : null}
 
       {/* Column header */}
       <div className="grid grid-cols-12 px-space-md py-space-xs bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider shrink-0">
@@ -128,7 +152,7 @@ export function ReceiptTape() {
                       </div>
                     </div>
                     <div className="col-span-2 text-center">
-                      <TaxChip flag={line.taxFlag} />
+                      <TaxChip flag={line.taxFlag} label={currency.flagLabels[line.taxFlag]} />
                     </div>
                     <div className="col-span-3 text-right font-numeric-md text-numeric-md font-bold text-primary pr-1">
                       {formatMoney(net)}
@@ -160,16 +184,18 @@ export function ReceiptTape() {
                       >
                         <Icon name="add_circle" className="text-xs" /> Qty
                       </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleOverride(line.id, gross);
-                        }}
-                        className="flex items-center gap-0.5 px-space-xs py-0.5 bg-surface-container-lowest text-on-surface rounded font-label-sm text-label-sm shadow-sm hover:bg-surface"
-                      >
-                        <Icon name="price_change" className="text-xs" /> Override
-                      </button>
+                      {addons.overrides ? (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOverride(line.id, gross);
+                          }}
+                          className="flex items-center gap-0.5 px-space-xs py-0.5 bg-surface-container-lowest text-on-surface rounded font-label-sm text-label-sm shadow-sm hover:bg-surface"
+                        >
+                          <Icon name="price_change" className="text-xs" /> Override
+                        </button>
+                      ) : null}
                     </div>
                     <span className="font-label-sm text-label-sm text-primary font-semibold">
                       Row Selected
@@ -213,7 +239,7 @@ export function ReceiptTape() {
                   </div>
                 </div>
                 <div className="col-span-2 text-center">
-                  <TaxChip flag={line.taxFlag} />
+                  <TaxChip flag={line.taxFlag} label={currency.flagLabels[line.taxFlag]} />
                 </div>
                 <div className="col-span-3 text-right font-numeric-md text-numeric-md pr-1">
                   {discounted && !line.voided ? (
@@ -232,21 +258,44 @@ export function ReceiptTape() {
       {/* Sticky financial summary */}
       <div className="bg-surface-container-low p-space-md shadow-[0_-4px_12px_rgba(0,0,0,0.03)] shrink-0 space-y-space-xs">
         <SummaryRow label="Cart Subtotal" value={formatMoney(totals.subtotal)} />
-        {totals.discounts > 0 ? (
+        {addons.loyalty && totals.discounts - totals.scpwdDiscount > 0 ? (
           <div className="flex justify-between items-center text-primary font-body-sm text-body-sm">
             <span className="flex items-center gap-1">
               <Icon name="loyalty" className="text-sm" /> Loyalty Member Savings
             </span>
             <span className="font-numeric-md text-numeric-md text-primary">
-              -{formatMoney(totals.discounts)}
+              -{formatMoney(totals.discounts - totals.scpwdDiscount)}
             </span>
           </div>
         ) : null}
-        <SummaryRow label="SNAP Food Eligible Portion" value={formatMoney(totals.ebtEligible)} />
-        <SummaryRow
-          label="Non-Food Tax & Container Dep."
-          value={formatMoney(totals.tax + totals.deposits)}
-        />
+        {addons.ebt ? (
+          <SummaryRow label="SNAP Food Eligible Portion" value={formatMoney(totals.ebtEligible)} />
+        ) : null}
+        {totals.taxInclusive ? (
+          discount ? (
+            <>
+              <SummaryRow label="Less: VAT Exemption" value={`-${formatMoney(totals.scpwdVatRemoved)}`} />
+              <SummaryRow
+                label={`Less: ${DISCOUNT_LABELS[discount.kind].replace(/ \(.*\)/, "")} ${region.seniorPwdPct}%`}
+                value={`-${formatMoney(totals.scpwdDiscount)}`}
+              />
+            </>
+          ) : region.vatRegistered ? (
+            <>
+              <SummaryRow label="VATable Sales" value={formatMoney(totals.vatableSales)} />
+              <SummaryRow label="VAT-Exempt Sales" value={formatMoney(totals.vatExemptSales)} />
+              <SummaryRow
+                label={`VAT ${region.taxRatePct}% (included)`}
+                value={formatMoney(totals.tax)}
+              />
+            </>
+          ) : null
+        ) : (
+          <SummaryRow
+            label={addons.ebt ? "Non-Food Tax & Container Dep." : "Tax & Container Dep."}
+            value={formatMoney(totals.tax + totals.deposits)}
+          />
+        )}
 
         <div className="bg-primary text-on-primary p-space-md rounded-xl flex items-center justify-between shadow-md mt-space-xs">
           <div>
@@ -254,7 +303,8 @@ export function ReceiptTape() {
               Total Balance Due
             </div>
             <div className="font-body-sm text-body-sm text-on-primary/80">
-              {totals.itemCount} Items • {formatWeight(totals.totalWeightLb)} lbs Total
+              {totals.itemCount} Items
+              {addons.scale ? ` • ${formatWeight(totals.totalWeightLb)} lbs Total` : ""}
             </div>
           </div>
           <div className="text-right">
@@ -277,7 +327,7 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-function TaxChip({ flag }: { flag: "F" | "T" }) {
+function TaxChip({ flag, label }: { flag: "F" | "T"; label: string }) {
   return (
     <span
       className={`font-label-sm text-label-sm px-1 rounded ${
@@ -286,7 +336,7 @@ function TaxChip({ flag }: { flag: "F" | "T" }) {
           : "bg-surface-container text-on-surface-variant"
       }`}
     >
-      {flag}
+      {label}
     </span>
   );
 }

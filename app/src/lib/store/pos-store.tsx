@@ -10,10 +10,16 @@ import {
   type ReactNode,
 } from "react";
 
+import { useAddons } from "./addons-store";
+import { useCatalog } from "./catalog-store";
+import { useMode } from "./mode-store";
+import type { PosMode } from "../mode";
+import { useRegion } from "./region-store";
+import type { CartDiscount } from "../region";
 import { DEMO_CART, DEMO_MEMBER, DEFAULT_HARDWARE, LANE_NAME } from "../data/session";
-import { PRODUCT_BY_ID, lookupByCode } from "../data/catalog";
+import { PRODUCT_BY_ID } from "../data/catalog";
 import { findProductByCodeLive } from "../data/live-lookup";
-import { computeTotals, describeLine, lineNet } from "../money";
+import { computeTotals, describeLine, lineNet, type TaxConfig } from "../money";
 import type {
   CartLine,
   CartTotals,
@@ -33,6 +39,7 @@ export interface HeldCart {
   label: string;
   lines: CartLine[];
   member: LoyaltyMember | null;
+  discount: CartDiscount | null;
   heldAt: string;
 }
 
@@ -50,6 +57,8 @@ export interface PosState {
   /** Cart line currently showing its inline Void / Qty / Override bar. */
   selectedLineId: string | null;
   member: LoyaltyMember | null;
+  /** Statutory Senior Citizen / PWD discount on the whole sale. */
+  discount: CartDiscount | null;
   scale: ScaleReading;
   hardware: HardwareStatus;
   tenders: TenderEntry[];
@@ -61,6 +70,8 @@ export interface PosState {
     tenders: TenderEntry[];
     changeCents: Cents;
     orderNumber: string;
+    totals: CartTotals;
+    discount: CartDiscount | null;
   } | null;
 }
 
@@ -74,13 +85,14 @@ type Action =
   | { type: "override-price"; id: string; cents: Cents }
   | { type: "set-member"; member: LoyaltyMember | null }
   | { type: "apply-reward" }
+  | { type: "set-discount"; discount: CartDiscount | null }
   | { type: "set-scale"; reading: Partial<ScaleReading> }
   | { type: "set-hardware"; patch: Partial<HardwareStatus> }
   | { type: "add-tender"; tender: TenderEntry }
   | { type: "clear-tenders" }
   | { type: "hold-cart" }
   | { type: "recall-cart"; id: string }
-  | { type: "complete"; changeCents: Cents }
+  | { type: "complete"; changeCents: Cents; taxConfig: TaxConfig }
   | { type: "new-cart" }
   | { type: "toast"; toast: ToastMessage | null };
 
@@ -88,19 +100,28 @@ function newOrderNumber(): string {
   return `${88_000 + Math.floor(Math.random() * 900)}-L04`;
 }
 
-const initialState: PosState = {
-  lane: LANE_NAME,
-  orderNumber: "88392-L04",
-  lines: DEMO_CART,
-  selectedLineId: "l-3",
-  member: DEMO_MEMBER,
-  scale: { grossLb: 2.36, tareLb: 0.02, stable: true },
-  hardware: DEFAULT_HARDWARE,
-  tenders: [],
-  heldCarts: [],
-  toast: null,
-  lastReceipt: null,
-};
+/**
+ * Demo mode opens on a seeded sale (and an attached member, and a live-looking
+ * scale reading) so every screen has something to show. Actual mode starts as
+ * an empty lane — nothing from the demo data is carried over.
+ */
+function makeInitialState(mode: PosMode): PosState {
+  const demo = mode === "demo";
+  return {
+    lane: LANE_NAME,
+    orderNumber: demo ? "88392-L04" : newOrderNumber(),
+    lines: demo ? DEMO_CART : [],
+    selectedLineId: demo ? "l-3" : null,
+    member: demo ? DEMO_MEMBER : null,
+    discount: null,
+    scale: demo ? { grossLb: 2.36, tareLb: 0.02, stable: true } : { grossLb: 0, tareLb: 0, stable: true },
+    hardware: DEFAULT_HARDWARE,
+    tenders: [],
+    heldCarts: [],
+    toast: null,
+    lastReceipt: null,
+  };
+}
 
 let lineSeq = 100;
 const nextLineId = () => `l-${++lineSeq}`;
@@ -142,14 +163,16 @@ export function buildLine(
     taxFlag: product.taxFlag,
     ebtEligible: product.ebtEligible,
     depositCents: product.depositCents,
+    codeLabel: codeLabelFor(product),
     detail: describeLine(draft, codeLabelFor(product)),
   };
 }
 
 /** Re-renders a line's grey detail text after a qty or weight edit. */
 function redescribe(line: CartLine): CartLine {
+  // Seeded demo lines predate `codeLabel`; fall back to the bundled catalog.
   const product = PRODUCT_BY_ID.get(line.productId);
-  const codeLabel = product ? codeLabelFor(product) : "";
+  const codeLabel = line.codeLabel ?? (product ? codeLabelFor(product) : "");
   return { ...line, detail: describeLine(line, codeLabel) };
 }
 
@@ -217,6 +240,9 @@ function reducer(state: PosState, action: Action): PosState {
       };
     }
 
+    case "set-discount":
+      return { ...state, discount: action.discount };
+
     case "set-scale":
       return { ...state, scale: { ...state.scale, ...action.reading } };
 
@@ -236,6 +262,7 @@ function reducer(state: PosState, action: Action): PosState {
         label: `${state.lines.filter((l) => !l.voided).length} items • ${state.member?.name ?? "Guest"}`,
         lines: state.lines,
         member: state.member,
+        discount: state.discount,
         heldAt: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
       };
       return {
@@ -243,6 +270,7 @@ function reducer(state: PosState, action: Action): PosState {
         heldCarts: [held, ...state.heldCarts],
         lines: [],
         member: null,
+        discount: null,
         selectedLineId: null,
         tenders: [],
         orderNumber: newOrderNumber(),
@@ -256,13 +284,14 @@ function reducer(state: PosState, action: Action): PosState {
         ...state,
         lines: held.lines,
         member: held.member,
+        discount: held.discount,
         heldCarts: state.heldCarts.filter((h) => h.id !== action.id),
         selectedLineId: null,
       };
     }
 
     case "complete": {
-      const totals = computeTotals(state.lines, state.member);
+      const totals = computeTotals(state.lines, state.member, action.taxConfig, state.discount);
       return {
         ...state,
         lastReceipt: {
@@ -270,6 +299,8 @@ function reducer(state: PosState, action: Action): PosState {
           tenders: state.tenders,
           changeCents: action.changeCents,
           orderNumber: state.orderNumber,
+          totals,
+          discount: state.discount,
         },
         hardware: { ...state.hardware, drawerOpen: true },
       };
@@ -277,12 +308,11 @@ function reducer(state: PosState, action: Action): PosState {
 
     case "new-cart":
       return {
-        ...initialState,
-        lane: state.lane,
+        ...state,
         hardware: { ...state.hardware, drawerOpen: false },
-        heldCarts: state.heldCarts,
         lines: [],
         member: null,
+        discount: null,
         selectedLineId: null,
         tenders: [],
         lastReceipt: null,
@@ -316,6 +346,8 @@ export interface PosContextValue extends PosState {
   overridePrice(id: string, cents: Cents): void;
   setMember(member: LoyaltyMember | null): void;
   applyReward(): void;
+  /** Senior Citizen / PWD discount for the whole sale; `null` removes it. */
+  setDiscount(discount: CartDiscount | null): void;
   setScale(reading: Partial<ScaleReading>): void;
   setHardware(patch: Partial<HardwareStatus>): void;
   addTender(kind: TenderKind, amount: Cents, tendered?: Cents): void;
@@ -331,9 +363,26 @@ export interface PosContextValue extends PosState {
 const PosContext = createContext<PosContextValue | null>(null);
 
 export function PosProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const mode = useMode();
+  const [rawState, dispatch] = useReducer(reducer, mode, makeInitialState);
+  const { addons } = useAddons();
+  const { taxConfig } = useRegion();
+  const { lookupByCode } = useCatalog();
 
-  const totals = useMemo(() => computeTotals(state.lines, state.member), [state.lines, state.member]);
+  // With Loyalty off the sale is anonymous: any attached member (and their
+  // reward) is ignored everywhere, without being lost if the add-on returns.
+  const state = useMemo(
+    () => (addons.loyalty || !rawState.member ? rawState : { ...rawState, member: null }),
+    [addons.loyalty, rawState],
+  );
+
+  // A statutory discount only exists in regions that offer one.
+  const discount = taxConfig.seniorPwdRate > 0 ? state.discount : null;
+
+  const totals = useMemo(
+    () => computeTotals(state.lines, state.member, taxConfig, discount),
+    [state.lines, state.member, taxConfig, discount],
+  );
 
   const amountTendered = useMemo(
     () => state.tenders.reduce((sum, t) => sum + t.amount, 0),
@@ -362,6 +411,14 @@ export function PosProvider({ children }: { children: ReactNode }) {
         showToast({ title: "Item not found", detail: `No catalog match for "${code}"`, tone: "error" });
         return null;
       }
+      if (product.pricingMode === "scale" && !addons.scale) {
+        showToast({
+          title: `${product.name} is sold by weight`,
+          detail: "Weighed items need the Scale add-on — ask a manager",
+          tone: "warning",
+        });
+        return null;
+      }
       if (product.pricingMode === "scale") {
         // A weighed item needs the scale, so route the cashier to the PLU dock.
         showToast({
@@ -375,12 +432,13 @@ export function PosProvider({ children }: { children: ReactNode }) {
       showToast({ title: `Added ${product.name}`, detail: codeLabelFor(product), tone: "success" });
       return product;
     },
-    [showToast],
+    [showToast, addons.scale, lookupByCode],
   );
 
   const value = useMemo<PosContextValue>(
     () => ({
       ...state,
+      discount,
       totals,
       balanceDue,
       amountTendered,
@@ -394,6 +452,7 @@ export function PosProvider({ children }: { children: ReactNode }) {
       overridePrice: (id, cents) => dispatch({ type: "override-price", id, cents }),
       setMember: (member) => dispatch({ type: "set-member", member }),
       applyReward: () => dispatch({ type: "apply-reward" }),
+      setDiscount: (next) => dispatch({ type: "set-discount", discount: next }),
       setScale: (reading) => dispatch({ type: "set-scale", reading }),
       setHardware: (patch) => dispatch({ type: "set-hardware", patch }),
       addTender: (kind, amount, tendered) =>
@@ -411,12 +470,12 @@ export function PosProvider({ children }: { children: ReactNode }) {
       clearTenders: () => dispatch({ type: "clear-tenders" }),
       holdCart: () => dispatch({ type: "hold-cart" }),
       recallCart: (id) => dispatch({ type: "recall-cart", id }),
-      completeTransaction: (changeCents) => dispatch({ type: "complete", changeCents }),
+      completeTransaction: (changeCents) => dispatch({ type: "complete", changeCents, taxConfig }),
       newCart: () => dispatch({ type: "new-cart" }),
       showToast,
       lineTotal: lineNet,
     }),
-    [state, totals, balanceDue, amountTendered, scanCode, showToast],
+    [state, discount, totals, balanceDue, amountTendered, scanCode, showToast, taxConfig],
   );
 
   return <PosContext.Provider value={value}>{children}</PosContext.Provider>;

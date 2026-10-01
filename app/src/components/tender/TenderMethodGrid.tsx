@@ -1,6 +1,7 @@
 "use client";
 
 import { Icon } from "@/components/ui/Icon";
+import { useAddons } from "@/lib/store/addons-store";
 import { formatMoney } from "@/lib/money";
 import type { TenderKind } from "@/lib/types";
 
@@ -18,6 +19,7 @@ export function TenderMethodGrid({
   maxEbt: number;
   onSelect: (kind: TenderKind) => void;
 }) {
+  const { addons } = useAddons();
   const isActive = (kind: TenderKind) => kind === active;
 
   return (
@@ -96,129 +98,141 @@ export function TenderMethodGrid({
           </div>
         </button>
 
-        {/* EBT / SNAP */}
-        <button
-          type="button"
-          onClick={() => onSelect("ebt_snap")}
-          className={`${BASE} h-24 ${isActive("ebt_snap") ? ACTIVE : INACTIVE}`}
-        >
-          <div className="flex items-center justify-between w-full">
-            <Icon
-              name="local_mall"
-              className={`text-2xl group-hover:scale-110 transition-transform ${
-                isActive("ebt_snap") ? "text-surface" : "text-tertiary"
-              }`}
-            />
-            <span className="font-label-sm text-label-sm bg-tertiary-fixed text-on-tertiary-fixed px-1.5 py-0.5 rounded font-bold">
-              SNAP Auto
-            </span>
-          </div>
-          <div>
-            <div
-              className={`font-headline-sm text-headline-sm font-semibold ${
-                isActive("ebt_snap") ? "text-surface" : "text-on-surface"
-              }`}
-            >
-              EBT / SNAP Food
-            </div>
-            <div
-              className={`font-body-sm text-body-sm ${
-                isActive("ebt_snap") ? "text-surface/90" : "text-on-surface-variant"
-              }`}
-            >
-              Max eligible: {formatMoney(maxEbt)}
-            </div>
-          </div>
-        </button>
-
-        {/* EBT Cash */}
-        <button
-          type="button"
-          onClick={() => onSelect("ebt_cash")}
-          className={`${BASE} h-24 ${isActive("ebt_cash") ? ACTIVE : INACTIVE}`}
-        >
-          <div className="flex items-center justify-between w-full">
-            <Icon
-              name="account_balance_wallet"
-              className={`text-2xl group-hover:scale-110 transition-transform ${
-                isActive("ebt_cash") ? "text-surface" : "text-on-surface-variant"
-              }`}
-            />
-            <Hotkey active={isActive("ebt_cash")}>[F8]</Hotkey>
-          </div>
-          <div>
-            <div
-              className={`font-headline-sm text-headline-sm font-semibold ${
-                isActive("ebt_cash") ? "text-surface" : "text-on-surface"
-              }`}
-            >
-              EBT Cash
-            </div>
-            <div
-              className={`font-body-sm text-body-sm ${
-                isActive("ebt_cash") ? "text-surface/90" : "text-on-surface-variant"
-              }`}
-            >
-              Benefit cash withdrawal/pay
-            </div>
-          </div>
-        </button>
-
-        {/* Gift / points */}
-        <button
-          type="button"
-          onClick={() => onSelect("gift")}
-          className={`${BASE} h-20 ${isActive("gift") ? ACTIVE : INACTIVE}`}
-        >
-          <div className="flex items-center justify-between w-full">
-            <Icon
-              name="card_giftcard"
-              className={`text-xl ${isActive("gift") ? "text-surface" : "text-primary"}`}
-            />
-            <span
-              className={`font-label-sm text-label-sm ${
-                isActive("gift") ? "text-surface/90" : "text-on-surface-variant"
-              }`}
-            >
-              Scan / 16-Dig
-            </span>
-          </div>
-          <div
-            className={`font-label-lg text-label-lg ${
-              isActive("gift") ? "text-surface" : "text-on-surface"
-            }`}
+        {addons.ebt ? (
+          <>
+          {/* EBT / SNAP */}
+          <button
+            type="button"
+            onClick={() => onSelect("ebt_snap")}
+            className={`${BASE} h-24 ${isActive("ebt_snap") ? ACTIVE : INACTIVE}`}
           >
-            Store Gift Card / Points
-          </div>
-        </button>
+            <div className="flex items-center justify-between w-full">
+              <Icon
+                name="local_mall"
+                className={`text-2xl group-hover:scale-110 transition-transform ${
+                  isActive("ebt_snap") ? "text-surface" : "text-tertiary"
+                }`}
+              />
+              <span className="font-label-sm text-label-sm bg-tertiary-fixed text-on-tertiary-fixed px-1.5 py-0.5 rounded font-bold">
+                SNAP Auto
+              </span>
+            </div>
+            <div>
+              <div
+                className={`font-headline-sm text-headline-sm font-semibold ${
+                  isActive("ebt_snap") ? "text-surface" : "text-on-surface"
+                }`}
+              >
+                EBT / SNAP Food
+              </div>
+              <div
+                className={`font-body-sm text-body-sm ${
+                  isActive("ebt_snap") ? "text-surface/90" : "text-on-surface-variant"
+                }`}
+              >
+                Max eligible: {formatMoney(maxEbt)}
+              </div>
+            </div>
+          </button>
 
-        {/* WIC */}
-        <button
-          type="button"
-          onClick={() => onSelect("wic")}
-          className={`${BASE} h-20 ${isActive("wic") ? ACTIVE : INACTIVE}`}
-        >
-          <div className="flex items-center justify-between w-full">
-            <Icon
-              name="fact_check"
-              className={`text-xl ${isActive("wic") ? "text-surface" : "text-secondary"}`}
-            />
-            <span
-              className={`font-label-sm text-label-sm ${
-                isActive("wic") ? "text-surface/90" : "text-on-surface-variant"
+          {/* EBT Cash */}
+          <button
+            type="button"
+            onClick={() => onSelect("ebt_cash")}
+            className={`${BASE} h-24 ${isActive("ebt_cash") ? ACTIVE : INACTIVE}`}
+          >
+            <div className="flex items-center justify-between w-full">
+              <Icon
+                name="account_balance_wallet"
+                className={`text-2xl group-hover:scale-110 transition-transform ${
+                  isActive("ebt_cash") ? "text-surface" : "text-on-surface-variant"
+                }`}
+              />
+              <Hotkey active={isActive("ebt_cash")}>[F8]</Hotkey>
+            </div>
+            <div>
+              <div
+                className={`font-headline-sm text-headline-sm font-semibold ${
+                  isActive("ebt_cash") ? "text-surface" : "text-on-surface"
+                }`}
+              >
+                EBT Cash
+              </div>
+              <div
+                className={`font-body-sm text-body-sm ${
+                  isActive("ebt_cash") ? "text-surface/90" : "text-on-surface-variant"
+                }`}
+              >
+                Benefit cash withdrawal/pay
+              </div>
+            </div>
+          </button>
+          </>
+        ) : null}
+
+        {addons.giftcard ? (
+          <>
+          {/* Gift / points */}
+          <button
+            type="button"
+            onClick={() => onSelect("gift")}
+            className={`${BASE} h-20 ${isActive("gift") ? ACTIVE : INACTIVE}`}
+          >
+            <div className="flex items-center justify-between w-full">
+              <Icon
+                name="card_giftcard"
+                className={`text-xl ${isActive("gift") ? "text-surface" : "text-primary"}`}
+              />
+              <span
+                className={`font-label-sm text-label-sm ${
+                  isActive("gift") ? "text-surface/90" : "text-on-surface-variant"
+                }`}
+              >
+                Scan / 16-Dig
+              </span>
+            </div>
+            <div
+              className={`font-label-lg text-label-lg ${
+                isActive("gift") ? "text-surface" : "text-on-surface"
               }`}
             >
-              CVV / Paper
-            </span>
-          </div>
-          <div
-            className={`font-label-lg text-label-lg ${
-              isActive("wic") ? "text-surface" : "text-on-surface"
-            }`}
+              Store Gift Card / Points
+            </div>
+          </button>
+          </>
+        ) : null}
+
+        {addons.ebt ? (
+          <>
+          {/* WIC */}
+          <button
+            type="button"
+            onClick={() => onSelect("wic")}
+            className={`${BASE} h-20 ${isActive("wic") ? ACTIVE : INACTIVE}`}
           >
-            WIC / Store Voucher
-          </div>
-        </button>
+            <div className="flex items-center justify-between w-full">
+              <Icon
+                name="fact_check"
+                className={`text-xl ${isActive("wic") ? "text-surface" : "text-secondary"}`}
+              />
+              <span
+                className={`font-label-sm text-label-sm ${
+                  isActive("wic") ? "text-surface/90" : "text-on-surface-variant"
+                }`}
+              >
+                CVV / Paper
+              </span>
+            </div>
+            <div
+              className={`font-label-lg text-label-lg ${
+                isActive("wic") ? "text-surface" : "text-on-surface"
+              }`}
+            >
+              WIC / Store Voucher
+            </div>
+          </button>
+          </>
+        ) : null}
       </div>
     </div>
   );

@@ -6,27 +6,41 @@ import { useMemo, useState } from "react";
 import { PluCard } from "./PluCard";
 import { ScaleDock } from "./ScaleDock";
 import { Icon } from "@/components/ui/Icon";
-import {
-  PLU_CATEGORIES,
-  PLU_GRID_IDS,
-  PLU_SPEED_KEYS,
-  PRODUCTS,
-  PRODUCT_BY_ID,
-  searchProducts,
-} from "@/lib/data/catalog";
+import { searchProducts } from "@/lib/data/catalog";
 import { TARE_PRESETS } from "@/lib/data/session";
 import { formatMoney, formatWeight, roundCents } from "@/lib/money";
+import { useCatalog } from "@/lib/store/catalog-store";
+import { useMode } from "@/lib/store/mode-store";
 import { buildLine, usePos } from "@/lib/store/pos-store";
 import type { Product } from "@/lib/types";
 
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
-const GRID_PRODUCTS = PLU_GRID_IDS.map((id) => PRODUCT_BY_ID.get(id)).filter(
-  (p): p is Product => Boolean(p),
-);
-
 export function PluScreen() {
+  const { pluGrid, loading, error } = useCatalog();
+  if (pluGrid.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-space-xs py-space-xl text-on-surface-variant text-center">
+        <Icon name="inventory_2" className="text-4xl text-outline-variant" />
+        <p className="font-label-md text-label-md">
+          {loading ? "Loading inventory…" : (error ?? "No items with a PLU yet — a manager can add them in Manage Products.")}
+        </p>
+      </div>
+    );
+  }
+  return <PluDirectory />;
+}
+
+function PluDirectory() {
   const router = useRouter();
+  const mode = useMode();
+  const {
+    products: PRODUCTS,
+    byId: PRODUCT_BY_ID,
+    pluGrid: GRID_PRODUCTS,
+    pluCategories: PLU_CATEGORIES,
+    pluSpeedKeys: PLU_SPEED_KEYS,
+  } = useCatalog();
   const params = useSearchParams();
   const { addLine, showToast, scale, setScale } = usePos();
 
@@ -77,7 +91,7 @@ export function PluScreen() {
       list = list.filter((p) => p.name.toUpperCase().startsWith(letter));
     }
     return list;
-  }, [query, category, letter]);
+  }, [query, category, letter, GRID_PRODUCTS]);
 
   const selectProduct = (product: Product) => {
     setSelectedId(product.id);
@@ -261,10 +275,11 @@ export function PluScreen() {
           </div>
           <div className="flex items-center gap-space-sm font-label-sm text-label-sm text-on-surface-variant">
             <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-primary" /> Catalog synced 2m ago
+              <span className="w-2 h-2 rounded-full bg-primary" />{" "}
+              {mode === "actual" ? "Live inventory" : "Catalog synced 2m ago"}
             </span>
             <span>•</span>
-            <span>Database: US_PLU_REV2024</span>
+            <span>{mode === "actual" ? "Source: Supabase" : "Database: US_PLU_REV2024"}</span>
           </div>
         </div>
       </div>

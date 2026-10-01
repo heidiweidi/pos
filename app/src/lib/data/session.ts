@@ -276,6 +276,28 @@ export const DENOMINATIONS: Denomination[] = [
   },
 ];
 
+/** Philippine peso drawer count. Coins and centavos are entered as one peso value. */
+export const PHP_DENOMINATIONS: Denomination[] = [
+  { id: "p1000", valueCents: 100_000, chip: "₱1,000", label: "One Thousand Peso Bills", sublabel: "Polymer note", defaultCount: 2 },
+  { id: "p500", valueCents: 50_000, chip: "₱500", label: "Five Hundred Peso Bills", sublabel: "Polymer note", defaultCount: 4 },
+  { id: "p200", valueCents: 20_000, chip: "₱200", label: "Two Hundred Peso Bills", sublabel: "Polymer note", defaultCount: 10 },
+  { id: "p100", valueCents: 10_000, chip: "₱100", label: "One Hundred Peso Bills", sublabel: "Polymer note", defaultCount: 15 },
+  { id: "p50", valueCents: 5_000, chip: "₱50", label: "Fifty Peso Bills", sublabel: "Polymer note", defaultCount: 10 },
+  { id: "p20", valueCents: 2_000, chip: "₱20", label: "Twenty Peso Bills", sublabel: "Polymer note", defaultCount: 10 },
+  {
+    id: "pcoin",
+    valueCents: null,
+    chip: "¢",
+    label: "Loose Coins",
+    sublabel: "₱20, ₱10, ₱5, ₱1 and centavos — total value",
+    defaultCount: 500,
+  },
+];
+
+export function denominationsFor(currency: "USD" | "PHP"): Denomination[] {
+  return currency === "PHP" ? PHP_DENOMINATIONS : DENOMINATIONS;
+}
+
 export const DEFAULT_HARDWARE: HardwareStatus = {
   scannerReady: true,
   scaleStable: true,

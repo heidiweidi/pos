@@ -5,30 +5,47 @@ import { usePathname } from "next/navigation";
 
 import { Avatar } from "@/components/ui/Avatar";
 import { Icon } from "@/components/ui/Icon";
+import type { AddonId } from "@/lib/addons";
 import { formatWeight } from "@/lib/money";
+import { useAddons } from "@/lib/store/addons-store";
 import { usePos } from "@/lib/store/pos-store";
 import { useSession } from "@/lib/store/session-store";
 import { LANE_NAME, TERMINAL_NAME } from "@/lib/data/session";
 
-const BASE_NAV = [
+interface NavItem {
+  href: string;
+  label: string;
+  /** Hidden unless this add-on is on. */
+  addon?: AddonId;
+}
+
+const BASE_NAV: NavItem[] = [
   { href: "/register", label: "Active Register" },
-  { href: "/plu", label: "Produce PLU Lookup" },
+  { href: "/plu", label: "Produce PLU Lookup", addon: "scale" },
   { href: "/tender", label: "Tender & Payment" },
   { href: "/manager", label: "Manager & Shift" },
 ];
 
-const MANAGER_NAV = [{ href: "/manager/products", label: "Manage Products" }];
+const MANAGER_NAV: NavItem[] = [
+  { href: "/manager/products", label: "Manage Products" },
+  { href: "/manager/addons", label: "Add-ons" },
+  { href: "/manager/region", label: "Currency & Tax" },
+  { href: "/manager/mode", label: "Data Mode" },
+];
 
 export function TerminalHeader() {
   const pathname = usePathname();
   const { cashier, lock } = useSession();
-  const { scale, hardware, member, setMember } = usePos();
+  const { addons } = useAddons();
+  const { scale, hardware, setMember } = usePos();
 
   const netWeight = Math.max(0, scale.grossLb - scale.tareLb);
   const scaleLabel =
     netWeight <= 0.001 ? "Scale: 0.00 lb ZERO" : `Scale: ${formatWeight(netWeight)} lb NET`;
 
-  const nav = cashier?.role === "manager" ? [...BASE_NAV, ...MANAGER_NAV] : BASE_NAV;
+  const nav = (cashier?.role === "manager" ? [...BASE_NAV, ...MANAGER_NAV] : BASE_NAV).filter(
+    (item) => !item.addon || addons[item.addon],
+  );
 
   return (
     <header className="fixed top-0 w-full z-50 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
@@ -56,12 +73,14 @@ export function TerminalHeader() {
             </span>
           </div>
 
+          {addons.scale ? (
           <div className="hidden xl:flex items-center gap-space-xs bg-inverse-surface px-space-sm py-space-xs rounded text-inverse-on-surface">
             <Icon name="scale" className="text-primary-fixed-dim text-base" />
             <span className="font-label-md text-label-md tracking-wider text-primary-fixed whitespace-nowrap">
               {scaleLabel}
             </span>
           </div>
+          ) : null}
         </div>
 
         {/* Screen navigation */}
@@ -87,15 +106,18 @@ export function TerminalHeader() {
 
         {/* Member, call manager, cashier chip */}
         <div className="flex items-center gap-space-sm shrink-0">
+          {addons.loyalty ? (
           <button
             type="button"
-            onClick={() => setMember(member ? null : null)}
+            onClick={() => setMember(null)}
             className="flex items-center gap-space-xs px-space-sm py-space-xs bg-secondary-container text-on-secondary-fixed rounded hover:bg-surface-container-high transition-colors font-label-md text-label-md"
           >
             <Icon name="badge" className="text-base" />
             <span className="hidden lg:inline">Alt+C Member</span>
           </button>
+          ) : null}
 
+          {addons.overrides ? (
           <button
             type="button"
             className="flex items-center gap-space-xs px-space-sm py-space-xs bg-error-container text-on-error-container rounded hover:bg-error/20 transition-colors font-label-md text-label-md"
@@ -103,6 +125,7 @@ export function TerminalHeader() {
             <Icon name="notifications_active" className="text-base" />
             <span className="hidden lg:inline">F1 Call Mgr</span>
           </button>
+          ) : null}
 
           <div className="flex items-center gap-space-sm pl-space-xs bg-surface-container-low py-space-xs pr-space-xs rounded">
             <div className="text-right hidden sm:block">

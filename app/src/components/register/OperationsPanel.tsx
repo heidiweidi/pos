@@ -1,15 +1,26 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+import { DiscountDialog } from "./DiscountDialog";
 
 import { Icon } from "@/components/ui/Icon";
+import { findMemberAction } from "@/lib/data/actions";
 import { DEMO_MEMBER } from "@/lib/data/session";
 import { formatMoney, formatWeight } from "@/lib/money";
+import { useAddons } from "@/lib/store/addons-store";
+import { useMode } from "@/lib/store/mode-store";
+import { useRegion } from "@/lib/store/region-store";
 import { usePos } from "@/lib/store/pos-store";
 
 /** Right column: scale HUD, fast tender, the big TENDER/PAY CTA, function matrix. */
 export function OperationsPanel() {
   const router = useRouter();
+  const { addons } = useAddons();
+  const { currency } = useRegion();
+  const mode = useMode();
+  const [discountOpen, setDiscountOpen] = useState(false);
   const {
     scale,
     totals,
@@ -24,6 +35,7 @@ export function OperationsPanel() {
     hardware,
     member,
     setMember,
+    discount,
     showToast,
   } = usePos();
 
@@ -47,67 +59,69 @@ export function OperationsPanel() {
 
   return (
     <div className="col-span-12 lg:col-span-3 flex flex-col h-full gap-space-sm overflow-hidden">
-      {/* Scale HUD */}
-      <div className="bg-inverse-surface rounded-xl p-space-md text-inverse-on-surface shadow-md shrink-0 flex flex-col justify-between">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <Icon name="scale" className="text-primary-fixed-dim text-lg" />
-            <span className="font-label-md text-label-md text-primary-fixed tracking-wider">
-              Avery Berkel 6712
-            </span>
-          </div>
-          <div className="flex items-center gap-1">
-            <span
-              className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                scale.stable
-                  ? "bg-primary-container text-on-primary-container"
-                  : "bg-tertiary-container text-on-tertiary-container"
-              }`}
-            >
-              {scale.stable ? "STABLE" : "MOTION"}
-            </span>
-            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-surface-container-lowest/20 text-inverse-on-surface">
-              NET
-            </span>
-          </div>
-        </div>
-
-        <div className="my-space-xs flex items-baseline justify-between">
-          <span className="font-numeric-hero text-numeric-hero text-primary-fixed font-bold tracking-tight">
-            {formatWeight(netWeight)}
-          </span>
-          <div className="text-right">
-            <span className="font-label-lg text-label-lg text-primary-fixed font-bold">LB</span>
-            <div className="font-body-sm text-body-sm text-surface-dim">
-              Tare: {formatWeight(scale.tareLb)} lb
+      {/* Scale HUD (Scale add-on) */}
+      {addons.scale ? (
+        <div className="bg-inverse-surface rounded-xl p-space-md text-inverse-on-surface shadow-md shrink-0 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <Icon name="scale" className="text-primary-fixed-dim text-lg" />
+              <span className="font-label-md text-label-md text-primary-fixed tracking-wider">
+                Avery Berkel 6712
+              </span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span
+                className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                  scale.stable
+                    ? "bg-primary-container text-on-primary-container"
+                    : "bg-tertiary-container text-on-tertiary-container"
+                }`}
+              >
+                {scale.stable ? "STABLE" : "MOTION"}
+              </span>
+              <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-surface-container-lowest/20 text-inverse-on-surface">
+                NET
+              </span>
             </div>
           </div>
-        </div>
 
-        <div className="grid grid-cols-3 gap-1 pt-1">
-          <ScaleKey label="ZERO" onClick={() => setScale({ grossLb: 0, tareLb: 0, stable: true })} />
-          <ScaleKey label="TARE" onClick={() => setScale({ tareLb: scale.grossLb })} />
-          <ScaleKey
-            label="MANUAL"
-            onClick={() => {
-              const input = window.prompt("Enter gross weight in lb:", formatWeight(scale.grossLb));
-              if (input === null) return;
-              const lb = Number.parseFloat(input);
-              if (Number.isFinite(lb) && lb >= 0) setScale({ grossLb: lb, stable: true });
-            }}
-          />
+          <div className="my-space-xs flex items-baseline justify-between">
+            <span className="font-numeric-hero text-numeric-hero text-primary-fixed font-bold tracking-tight">
+              {formatWeight(netWeight)}
+            </span>
+            <div className="text-right">
+              <span className="font-label-lg text-label-lg text-primary-fixed font-bold">LB</span>
+              <div className="font-body-sm text-body-sm text-surface-dim">
+                Tare: {formatWeight(scale.tareLb)} lb
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-1 pt-1">
+            <ScaleKey label="ZERO" onClick={() => setScale({ grossLb: 0, tareLb: 0, stable: true })} />
+            <ScaleKey label="TARE" onClick={() => setScale({ tareLb: scale.grossLb })} />
+            <ScaleKey
+              label="MANUAL"
+              onClick={() => {
+                const input = window.prompt("Enter gross weight in lb:", formatWeight(scale.grossLb));
+                if (input === null) return;
+                const lb = Number.parseFloat(input);
+                if (Number.isFinite(lb) && lb >= 0) setScale({ grossLb: lb, stable: true });
+              }}
+            />
+          </div>
         </div>
-      </div>
+      ) : null}
 
       {/* Fast tender shortcuts */}
       <div className="grid grid-cols-2 gap-space-xs shrink-0">
         <button
           type="button"
-          onClick={() => router.push("/tender?cash=5000")}
+          onClick={() => router.push(`/tender?cash=${currency.fastCashCents}`)}
           className="h-12 bg-surface-container-lowest hover:bg-surface-container-high transition-colors rounded-lg flex items-center justify-center gap-1 font-label-md text-label-md text-on-surface shadow-tile active:translate-y-0.5"
         >
           <Icon name="payments" className="text-primary text-base" />
-          <span>Fast $50</span>
+          <span>Fast {formatMoney(currency.fastCashCents).replace(/\.00$/, "")}</span>
         </button>
         <button
           type="button"
@@ -130,37 +144,41 @@ export function OperationsPanel() {
             <span>TENDER / PAY</span>
             <Icon name="arrow_forward" className="text-xl group-hover:translate-x-1 transition-transform" />
           </div>
-          <div className="font-label-sm text-label-sm opacity-90">[F12] Card • Cash • SNAP</div>
+          <div className="font-label-sm text-label-sm opacity-90">[F12] {addons.ebt ? "Card • Cash • SNAP" : "Card • Cash"}</div>
         </div>
         <div className="font-numeric-lg text-numeric-lg font-bold">{formatMoney(totals.total)}</div>
       </button>
 
       {/* Cashier function matrix */}
       <div className="flex-1 bg-surface-container-lowest p-space-sm rounded-xl shadow-md grid grid-cols-2 gap-space-xs overflow-y-auto pos-scroll content-start">
-        <FnKey
-          icon="pause_circle"
-          iconClass="text-primary"
-          label="Hold Cart"
-          hint="[F7]"
-          onClick={() => {
-            holdCart();
-            showToast({ title: "Cart suspended", detail: "Ticket held for recall", tone: "success" });
-          }}
-        />
-        <FnKey
-          icon="play_circle"
-          iconClass="text-primary"
-          label="Recall Cart"
-          hint={heldCarts.length > 0 ? `${heldCarts.length} held` : "Hold List"}
-          onClick={() => {
-            if (heldCarts.length === 0) {
-              showToast({ title: "No held carts", tone: "warning" });
-              return;
-            }
-            recallCart(heldCarts[0].id);
-            showToast({ title: "Cart recalled", detail: heldCarts[0].label, tone: "success" });
-          }}
-        />
+        {addons.holds ? (
+          <>
+            <FnKey
+              icon="pause_circle"
+              iconClass="text-primary"
+              label="Hold Cart"
+              hint="[F7]"
+              onClick={() => {
+                holdCart();
+                showToast({ title: "Cart suspended", detail: "Ticket held for recall", tone: "success" });
+              }}
+            />
+            <FnKey
+              icon="play_circle"
+              iconClass="text-primary"
+              label="Recall Cart"
+              hint={heldCarts.length > 0 ? `${heldCarts.length} held` : "Hold List"}
+              onClick={() => {
+                if (heldCarts.length === 0) {
+                  showToast({ title: "No held carts", tone: "warning" });
+                  return;
+                }
+                recallCart(heldCarts[0].id);
+                showToast({ title: "Cart recalled", detail: heldCarts[0].label, tone: "success" });
+              }}
+            />
+          </>
+        ) : null}
         <FnKey
           icon="remove_shopping_cart"
           iconClass="text-error"
@@ -181,27 +199,40 @@ export function OperationsPanel() {
             })
           }
         />
-        <FnKey
-          icon="supervisor_account"
-          iconClass="text-tertiary"
-          label="Override"
-          hint="Supervisor"
-          onClick={() => showToast({ title: "Select a line, then tap Override", tone: "warning" })}
-        />
-        <FnKey
-          icon="point_of_sale"
-          iconClass="text-secondary"
-          label="Open Drawer"
-          hint="No Sale"
-          onClick={() => {
-            setHardware({ drawerOpen: !hardware.drawerOpen });
-            showToast({
-              title: hardware.drawerOpen ? "Drawer closed" : "Drawer kicked",
-              detail: "No-sale logged to the override journal",
-              tone: "warning",
-            });
-          }}
-        />
+        {addons.overrides ? (
+          <>
+            <FnKey
+              icon="supervisor_account"
+              iconClass="text-tertiary"
+              label="Override"
+              hint="Supervisor"
+              onClick={() => showToast({ title: "Select a line, then tap Override", tone: "warning" })}
+            />
+            <FnKey
+              icon="point_of_sale"
+              iconClass="text-secondary"
+              label="Open Drawer"
+              hint="No Sale"
+              onClick={() => {
+                setHardware({ drawerOpen: !hardware.drawerOpen });
+                showToast({
+                  title: hardware.drawerOpen ? "Drawer closed" : "Drawer kicked",
+                  detail: "No-sale logged to the override journal",
+                  tone: "warning",
+                });
+              }}
+            />
+          </>
+        ) : null}
+        {currency.discounts.length > 0 ? (
+          <FnKey
+            icon="percent"
+            iconClass="text-tertiary"
+            label={discount ? "Discount On" : "Discount"}
+            hint="Senior / PWD"
+            onClick={() => setDiscountOpen(true)}
+          />
+        ) : null}
         <FnKey
           icon="print"
           iconClass="text-on-surface"
@@ -209,20 +240,39 @@ export function OperationsPanel() {
           hint="Last Order"
           onClick={() => showToast({ title: "Reprinting last slip", tone: "success" })}
         />
-        <FnKey
-          icon="person_add"
-          iconClass="text-primary"
-          label="Lookup Loyalty"
-          hint="Phone / Alt+C"
-          onClick={() => {
-            setMember(member ? null : DEMO_MEMBER);
-            showToast({
-              title: member ? "Member detached" : `Attached ${DEMO_MEMBER.name}`,
-              tone: "success",
-            });
-          }}
-        />
+        {addons.loyalty ? (
+          <FnKey
+            icon="person_add"
+            iconClass="text-primary"
+            label="Lookup Loyalty"
+            hint="Phone / Alt+C"
+            onClick={async () => {
+              if (member) {
+                setMember(null);
+                showToast({ title: "Member detached", tone: "success" });
+                return;
+              }
+              // Demo mode attaches the sample member; actual mode looks the
+              // customer up in the store's own member list.
+              if (mode === "demo") {
+                setMember(DEMO_MEMBER);
+                showToast({ title: `Attached ${DEMO_MEMBER.name}`, tone: "success" });
+                return;
+              }
+              const query = window.prompt("Member phone number or account #:");
+              if (!query?.trim()) return;
+              const found = await findMemberAction(query);
+              if (!found) {
+                showToast({ title: "Member not found", detail: `No match for "${query.trim()}"`, tone: "error" });
+                return;
+              }
+              setMember(found);
+              showToast({ title: `Attached ${found.name}`, tone: "success" });
+            }}
+          />
+        ) : null}
       </div>
+      {discountOpen ? <DiscountDialog onClose={() => setDiscountOpen(false)} /> : null}
     </div>
   );
 }

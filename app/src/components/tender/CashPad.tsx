@@ -1,7 +1,8 @@
 "use client";
 
 import { Icon } from "@/components/ui/Icon";
-import { formatMoney } from "@/lib/money";
+import { formatMoney, currencySymbol } from "@/lib/money";
+import { useRegion } from "@/lib/store/region-store";
 
 /** Rounds a balance up to the next common bill, for the quick-preset row. */
 function nextBill(balanceCents: number, bill: number): number {
@@ -21,11 +22,13 @@ export function CashPad({
   changeDue: number;
   onAccept: () => void;
 }) {
+  const { currency } = useRegion();
+  const [bigA, bigB, bigC] = currency.quickBillsCents;
   const presets = [
     { cents: balanceDue, caption: "Exact Cash" },
-    { cents: nextBill(balanceDue, 5_000), caption: "$50 Bill" },
-    { cents: nextBill(balanceDue, 2_000), caption: "Next $20" },
-    { cents: nextBill(balanceDue, 10_000), caption: "$100 Bill" },
+    { cents: nextBill(balanceDue, bigA), caption: `${formatMoney(bigA).replace(/\.00$/, "")} Bill` },
+    { cents: nextBill(balanceDue, bigB), caption: `Next ${formatMoney(bigB).replace(/\.00$/, "")}` },
+    { cents: nextBill(balanceDue, bigC), caption: `${formatMoney(bigC).replace(/\.00$/, "")} Bill` },
   ];
 
   const press = (key: string) => {
@@ -76,7 +79,7 @@ export function CashPad({
             htmlFor="cash-tendered"
             className="font-label-sm text-label-sm text-on-surface-variant block mb-1"
           >
-            Cash Tendered ($)
+            Cash Tendered ({currencySymbol()})
           </label>
           <input
             id="cash-tendered"
@@ -139,7 +142,7 @@ export function CashPad({
                   onClick={() => press(key)}
                   className="h-12 rounded-lg bg-surface-container-high hover:bg-surface-variant font-label-md text-label-md font-bold text-on-surface transition-colors"
                 >
-                  {key.replace("+", "+$")}
+                  {key.replace("+", `+${currencySymbol()}`)}
                 </button>
               );
             }

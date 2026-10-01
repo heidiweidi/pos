@@ -1,3 +1,5 @@
+import { DEFAULT_ADDONS, parseAddons, type AddonState } from "../addons";
+import { DEFAULT_REGION, parseRegion, type RegionSettings } from "../region";
 import { createClient } from "../supabase/server";
 import { computeTotals } from "../money";
 import type { PosDataAdapter } from "./adapter";
@@ -303,6 +305,36 @@ export const supabaseAdapter: PosDataAdapter = {
       .order("badge");
     if (error) throw error;
     return Promise.all((data as CashierRow[]).map((row) => mapCashier(supabase, row)));
+  },
+
+  async getAddons(): Promise<AddonState> {
+    // A missing table (schema not migrated yet) or a read error must never
+    // break the terminal — fall back to the plain register with every add-on off.
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("app_settings")
+      .select("value")
+      .eq("key", "addons")
+      .maybeSingle();
+    if (error) {
+      console.error("[supabaseAdapter] getAddons failed, using defaults:", error.message);
+      return DEFAULT_ADDONS;
+    }
+    return parseAddons(data?.value);
+  },
+
+  async getRegion(): Promise<RegionSettings> {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("app_settings")
+      .select("value")
+      .eq("key", "region")
+      .maybeSingle();
+    if (error) {
+      console.error("[supabaseAdapter] getRegion failed, using defaults:", error.message);
+      return DEFAULT_REGION;
+    }
+    return parseRegion(data?.value);
   },
 
   async recordTransaction(input): Promise<{ id: string }> {

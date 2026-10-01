@@ -2,7 +2,9 @@
 
 import { Icon } from "@/components/ui/Icon";
 import { formatMoney } from "@/lib/money";
-import type { TenderEntry } from "@/lib/types";
+import { DISCOUNT_LABELS, type CartDiscount } from "@/lib/region";
+import { useRegion } from "@/lib/store/region-store";
+import type { CartTotals, TenderEntry } from "@/lib/types";
 
 export function ReceiptModal({
   receipt,
@@ -13,10 +15,14 @@ export function ReceiptModal({
     tenders: TenderEntry[];
     changeCents: number;
     orderNumber: string;
+    totals: CartTotals;
+    discount: CartDiscount | null;
   } | null;
   onNext: () => void;
 }) {
+  const { region } = useRegion();
   if (!receipt) return null;
+  const { totals, discount } = receipt;
 
   const tenderedLabel =
     receipt.tenders.length === 0
@@ -49,6 +55,27 @@ export function ReceiptModal({
             <span className="text-on-surface-variant shrink-0">Total Amount:</span>
             <span className="font-bold text-on-surface">{formatMoney(receipt.totalCents)}</span>
           </div>
+          {totals.taxInclusive && region.vatRegistered ? (
+            <>
+              {discount ? (
+                <>
+                  <ReceiptRow label="VAT-Exempt Sales" value={formatMoney(totals.vatExemptSales)} />
+                  <ReceiptRow label="Less: VAT Exemption" value={`-${formatMoney(totals.scpwdVatRemoved)}`} />
+                  <ReceiptRow
+                    label={`Less: ${DISCOUNT_LABELS[discount.kind].replace(/ \(.*\)/, "")} ${region.seniorPwdPct}%`}
+                    value={`-${formatMoney(totals.scpwdDiscount)}`}
+                  />
+                  <ReceiptRow label={`ID ${discount.idNumber}`} value={discount.holderName} />
+                </>
+              ) : (
+                <>
+                  <ReceiptRow label="VATable Sales" value={formatMoney(totals.vatableSales)} />
+                  <ReceiptRow label="VAT-Exempt Sales" value={formatMoney(totals.vatExemptSales)} />
+                  <ReceiptRow label={`VAT ${region.taxRatePct}%`} value={formatMoney(totals.tax)} />
+                </>
+              )}
+            </>
+          ) : null}
           <div className="flex justify-between font-body-sm text-body-sm gap-space-sm">
             <span className="text-on-surface-variant shrink-0">Tendered:</span>
             <span className="font-bold text-on-surface text-right">{tenderedLabel}</span>
@@ -68,6 +95,15 @@ export function ReceiptModal({
           Next Customer / New Cart [Enter]
         </button>
       </div>
+    </div>
+  );
+}
+
+function ReceiptRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between font-body-sm text-body-sm gap-space-sm">
+      <span className="text-on-surface-variant shrink-0">{label}:</span>
+      <span className="text-on-surface text-right">{value}</span>
     </div>
   );
 }
