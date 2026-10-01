@@ -45,6 +45,23 @@ export function parseDollarsToCents(input: string): Cents {
   return roundCents(Number.parseFloat(cleaned) * 100);
 }
 
+/** Count items: every full multi-buy group at the bundle price, the rest at unit price. */
+export function countPrice(
+  line: Pick<CartLine, "qty" | "unitPrice" | "bulkQty" | "bulkPriceCents">,
+): Cents {
+  const { bulkQty, bulkPriceCents } = line;
+  if (bulkQty && bulkQty >= 2 && bulkPriceCents !== undefined) {
+    const groups = Math.floor(line.qty / bulkQty);
+    return groups * bulkPriceCents + roundCents((line.qty - groups * bulkQty) * line.unitPrice);
+  }
+  return roundCents(line.qty * line.unitPrice);
+}
+
+/** "3/$2.00" — the multi-buy label for a fast-key tile, in the active currency. */
+export function bulkLabel(bulk: { qty: number; priceCents: Cents }): string {
+  return `${bulk.qty}/${formatMoney(bulk.priceCents)}`;
+}
+
 /** Price of a single line before its discount, after any supervisor override. */
 export function lineGross(line: CartLine): Cents {
   if (line.voided) return 0;
@@ -53,7 +70,7 @@ export function lineGross(line: CartLine): Cents {
   const base =
     line.pricingMode === "scale"
       ? roundCents((line.weightLb ?? 0) * line.unitPrice)
-      : roundCents(line.qty * line.unitPrice);
+      : countPrice(line);
 
   const deposit = (line.depositCents ?? 0) * (line.pricingMode === "scale" ? 1 : line.qty);
   return base + deposit;
@@ -244,14 +261,18 @@ export function computeTotals(
 
 /** Builds the grey descriptor line under a cart item's name. */
 export function describeLine(
-  line: Pick<CartLine, "pricingMode" | "qty" | "unitPrice" | "weightLb" | "tareLb">,
+  line: Pick<CartLine, "pricingMode" | "qty" | "unitPrice" | "weightLb" | "tareLb" | "bulkQty" | "bulkPriceCents">,
   codeLabel: string,
 ): string {
   if (line.pricingMode === "scale") {
     const tare = line.tareLb ? ` • Tare ${formatWeight(line.tareLb)} lb` : "";
     return `${formatWeight(line.weightLb ?? 0)} lb @ ${formatMoney(line.unitPrice)}/lb${tare} • ${codeLabel}`;
   }
-  return `${line.qty} @ ${formatMoney(line.unitPrice)} ea • ${codeLabel}`;
+  const bulk =
+    line.bulkQty && line.bulkPriceCents !== undefined
+      ? ` • ${line.bulkQty} for ${formatMoney(line.bulkPriceCents)}`
+      : "";
+  return `${line.qty} @ ${formatMoney(line.unitPrice)} ea${bulk} • ${codeLabel}`;
 }
 
 /** Qty column text: "4" for counted items, "2.34#" for weighed ones. */

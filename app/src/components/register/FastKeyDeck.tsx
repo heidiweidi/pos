@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import { useMemo, useRef, useState } from "react";
 
 import { Icon } from "@/components/ui/Icon";
-import { formatMoney } from "@/lib/money";
+import { ProductImage } from "@/components/ui/ProductImage";
+import { bulkLabel, formatMoney } from "@/lib/money";
 import { useAddons } from "@/lib/store/addons-store";
 import { useCatalog } from "@/lib/store/catalog-store";
 import { usePos } from "@/lib/store/pos-store";
@@ -57,7 +58,7 @@ export function FastKeyDeck() {
   };
 
   return (
-    <div className="col-span-12 lg:col-span-4 flex flex-col h-full gap-space-sm overflow-hidden">
+    <div className="flex flex-col flex-1 min-h-0 gap-space-sm overflow-hidden">
       {/* Barcode / PLU entry dock */}
       <div className="bg-surface-container-lowest p-space-sm rounded-xl shadow-md flex items-center gap-space-sm shrink-0">
         <div className="relative flex-1">
@@ -122,7 +123,7 @@ export function FastKeyDeck() {
             </p>
           </div>
         ) : null}
-        <div className="grid grid-cols-3 gap-space-xs">
+        <div className="grid grid-cols-3 xl:grid-cols-4 gap-space-xs">
           {tiles.map((product, index) => {
             const isScale = product.pricingMode === "scale";
             return (
@@ -133,17 +134,14 @@ export function FastKeyDeck() {
                 className="h-24 bg-surface-container-lowest hover:bg-surface-container-low transition-all rounded-lg p-space-xs flex flex-col justify-between text-left shadow-tile active:translate-y-0.5 relative"
               >
                 <div className="flex items-start justify-between w-full">
-                  <Icon
-                    name={product.icon ?? "inventory_2"}
-                    className={`text-xl ${product.iconClass ?? "text-outline"}`}
-                  />
+                  <ProductImage src={product.imageUrl} alt={product.name} className="w-10 h-10" />
                   {isScale ? (
                     <span className="bg-primary/10 text-primary px-1 rounded font-label-sm text-label-sm flex items-center gap-0.5">
                       <Icon name="scale" className="text-xs" /> {product.unitLabel}
                     </span>
                   ) : (
                     <span className="font-numeric-md text-numeric-md font-bold text-on-surface">
-                      {product.promoLabel ?? formatMoney(product.unitPrice)}
+                      {product.bulk ? bulkLabel(product.bulk) : formatMoney(product.unitPrice)}
                     </span>
                   )}
                 </div>

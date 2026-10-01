@@ -6,10 +6,12 @@ import { Icon } from "@/components/ui/Icon";
 import { ProductsBulkBar } from "./ProductsBulkBar";
 import {
   bulkUpdateProducts,
+  clearProductImage,
   createProduct,
   deleteProduct,
   listAllProducts,
   setProductActive,
+  setProductImage,
   updateProduct,
   type BulkPatch,
   type ProductAdminRow,
@@ -17,6 +19,8 @@ import {
 } from "@/lib/data/products-admin";
 import { currencySymbol, formatMoney, parseDollarsToCents } from "@/lib/money";
 import { useRegion } from "@/lib/store/region-store";
+import { prepareProductImage } from "@/lib/images";
+import { ProductImage } from "@/components/ui/ProductImage";
 import { useCatalog } from "@/lib/store/catalog-store";
 import { useMode } from "@/lib/store/mode-store";
 import { usePos } from "@/lib/store/pos-store";
@@ -52,6 +56,7 @@ const EMPTY_FORM: ProductFormInput = {
   upc: "",
   sku: "",
   categories: [],
+  bulk: null,
 };
 
 function rowToForm(row: ProductAdminRow): ProductFormInput {
@@ -71,8 +76,12 @@ function rowToForm(row: ProductAdminRow): ProductFormInput {
     upc: row.upc ?? "",
     sku: row.sku ?? "",
     categories: row.categories ?? [],
+    bulk: row.bulk_qty && row.bulk_price_cents != null ? { qty: row.bulk_qty, priceCents: row.bulk_price_cents } : null,
   };
 }
+
+/** What the photo field will do when the form is saved. */
+type ImageEdit = { kind: "keep" } | { kind: "set"; blob: Blob; preview: string } | { kind: "remove" };
 
 function codeSummary(row: ProductAdminRow): string {
   const parts: string[] = [];
@@ -100,6 +109,9 @@ export function ProductsAdmin() {
   const [categoriesInput, setCategoriesInput] = useState("");
   const [saving, setSaving] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
+  const [bulkQtyInput, setBulkQtyInput] = useState("");
+  const [bulkPriceInput, setBulkPriceInput] = useState("");
+  const [imageEdit, setImageEdit] = useState<ImageEdit>({ kind: "keep" });
   const [selected, setSelected] = useState<Set<string>>(() => new Set());
   const [bulkBusy, setBulkBusy] = useState(false);
 
@@ -212,7 +224,40 @@ export function ProductsAdmin() {
     setPriceInput("");
     setDepositInput("");
     setCategoriesInput("");
+    setBulkQtyInput("");
+    setBulkPriceInput("");
+    resetImageEdit();
     setFormOpen(true);
+  }
+
+  function resetImageEdit() {
+    setImageEdit((prev) => {
+      if (prev.kind === "set") URL.revokeObjectURL(prev.preview);
+      return { kind: "keep" };
+    });
+  }
+
+  async function pickImage(file: File) {
+    try {
+      const blob = await prepareProductImage(file);
+      setImageEdit((prev) => {
+        if (prev.kind === "set") URL.revokeObjectURL(prev.preview);
+        return { kind: "set", blob, preview: URL.createObjectURL(blob) };
+      });
+    } catch (error) {
+      showToast({
+        title: "Couldn't use that photo",
+        detail: error instanceof Error ? error.message : undefined,
+        tone: "error",
+      });
+    }
+  }
+
+  function removeImage() {
+    setImageEdit((prev) => {
+      if (prev.kind === "set") URL.revokeObjectURL(prev.preview);
+      return { kind: "remove" };
+    });
   }
 
   function startEdit(row: ProductAdminRow) {
@@ -222,10 +267,14 @@ export function ProductsAdmin() {
     setPriceInput((next.unitPriceCents / 100).toFixed(2));
     setDepositInput(next.depositCents > 0 ? (next.depositCents / 100).toFixed(2) : "");
     setCategoriesInput(next.categories.join(", "));
+    setBulkQtyInput(next.bulk ? String(next.bulk.qty) : "");
+    setBulkPriceInput(next.bulk ? (next.bulk.priceCents / 100).toFixed(2) : "");
+    resetImageEdit();
     setFormOpen(true);
   }
 
   function cancelForm() {
+    resetImageEdit();
     setFormOpen(false);
     setEditingId(null);
   }
@@ -241,8 +290,25 @@ export function ProductsAdmin() {
       return;
     }
 
+    // Multi-buy: both boxes or neither.
+    let bulk: ProductFormInput["bulk"] = null;
+    if (form.pricingMode === "count" && (bulkQtyInput.trim() || bulkPriceInput.trim())) {
+      const qty = Number.parseInt(bulkQtyInput, 10);
+      const priceCents = parseDollarsToCents(bulkPriceInput);
+      if (!Number.isInteger(qty) || qty < 2 || priceCents <= 0) {
+        showToast({
+          title: "Check the multi-buy price",
+          detail: "Enter a quantity of 2 or more and the price for that many.",
+          tone: "error",
+        });
+        return;
+      }
+      bulk = { qty, priceCents };
+    }
+
     const input: ProductFormInput = {
       ...form,
+      bulk,
       unitPriceCents: parseDollarsToCents(priceInput),
       depositCents: depositInput.trim() ? parseDollarsToCents(depositInput) : 0,
       categories: categoriesInput
@@ -253,17 +319,42 @@ export function ProductsAdmin() {
 
     setSaving(true);
     try {
-      if (editingId) {
-        const updated = await updateProduct(editingId, input);
-        setProducts((prev) => prev.map((p) => (p.id === editingId ? updated : p)));
-        showToast({ title: `Updated ${updated.name}`, tone: "success" });
-        void refreshCatalog();
-      } else {
-        const created = await createProduct(input);
-        setProducts((prev) => [...prev, created]);
-        showToast({ title: `Added ${created.name}`, tone: "success" });
-        void refreshCatalog();
+      const before = editingId ? products.find((p) => p.id === editingId) : undefined;
+      let saved = editingId
+        ? await updateProduct(editingId, input, Boolean(before?.bulk_qty))
+        : await createProduct(input);
+
+      // The photo goes up after the product exists (its id names the file). A photo
+      // problem must not undo a product save, so it gets its own message.
+      let photoError: string | null = null;
+      try {
+        if (imageEdit.kind === "set") {
+          const image_url = await setProductImage(saved.id, imageEdit.blob, before?.image_url);
+          saved = { ...saved, image_url };
+        } else if (imageEdit.kind === "remove" && before?.image_url) {
+          await clearProductImage(saved.id, before.image_url);
+          saved = { ...saved, image_url: null };
+        }
+      } catch (error) {
+        console.error("[ProductsAdmin] photo save failed:", error);
+        photoError = error instanceof Error ? error.message : "Unknown error";
       }
+
+      const savedRow = saved;
+      setProducts((prev) =>
+        editingId ? prev.map((p) => (p.id === editingId ? savedRow : p)) : [...prev, savedRow],
+      );
+      showToast(
+        photoError
+          ? {
+              title: `${editingId ? "Updated" : "Added"} ${saved.name}, but the photo wasn't saved`,
+              detail: `${photoError} — has supabase/product-images.sql been run?`,
+              tone: "warning",
+            }
+          : { title: `${editingId ? "Updated" : "Added"} ${saved.name}`, tone: "success" },
+      );
+      resetImageEdit();
+      void refreshCatalog();
       setFormOpen(false);
       setEditingId(null);
     } catch (error) {
@@ -296,7 +387,7 @@ export function ProductsAdmin() {
   async function remove(row: ProductAdminRow) {
     if (!window.confirm(`Delete "${row.name}" permanently? This can't be undone.`)) return;
     try {
-      await deleteProduct(row.id);
+      await deleteProduct(row.id, row.image_url);
       setProducts((prev) => prev.filter((p) => p.id !== row.id));
       void refreshCatalog();
       showToast({ title: `Deleted ${row.name}`, tone: "success" });
@@ -371,6 +462,14 @@ export function ProductsAdmin() {
           setDepositInput={setDepositInput}
           categoriesInput={categoriesInput}
           setCategoriesInput={setCategoriesInput}
+          bulkQtyInput={bulkQtyInput}
+          setBulkQtyInput={setBulkQtyInput}
+          bulkPriceInput={bulkPriceInput}
+          setBulkPriceInput={setBulkPriceInput}
+          currentImageUrl={products.find((p) => p.id === editingId)?.image_url ?? undefined}
+          imageEdit={imageEdit}
+          onPickImage={(file) => void pickImage(file)}
+          onRemoveImage={removeImage}
           saving={saving}
           isEditing={Boolean(editingId)}
           onSubmit={submitForm}
@@ -460,12 +559,17 @@ export function ProductsAdmin() {
                       />
                     </td>
                     <td className="py-space-sm pr-space-sm">
-                      <div className="font-label-md text-label-md text-on-surface">{row.name}</div>
-                      {row.subtitle ? (
-                        <div className="font-body-sm text-body-sm text-on-surface-variant">
-                          {row.subtitle}
+                      <div className="flex items-center gap-space-sm">
+                        <ProductImage src={row.image_url ?? undefined} alt="" className="w-10 h-10 shrink-0" />
+                        <div className="min-w-0">
+                          <div className="font-label-md text-label-md text-on-surface">{row.name}</div>
+                          {row.subtitle ? (
+                            <div className="font-body-sm text-body-sm text-on-surface-variant">
+                              {row.subtitle}
+                            </div>
+                          ) : null}
                         </div>
-                      ) : null}
+                      </div>
                     </td>
                     <td className="py-space-sm pr-space-sm font-body-sm text-body-sm text-on-surface-variant">
                       {row.department}
@@ -488,6 +592,11 @@ export function ProductsAdmin() {
                         {" "}
                         /{row.unit_label}
                       </span>
+                      {row.bulk_qty && row.bulk_price_cents != null ? (
+                        <div className="font-label-sm text-label-sm text-primary">
+                          {row.bulk_qty} for {formatMoney(row.bulk_price_cents)}
+                        </div>
+                      ) : null}
                     </td>
                     <td className="py-space-sm pr-space-sm font-body-sm text-body-sm text-on-surface-variant">
                       {codeSummary(row)}
@@ -559,6 +668,14 @@ function ProductForm({
   setDepositInput,
   categoriesInput,
   setCategoriesInput,
+  bulkQtyInput,
+  setBulkQtyInput,
+  bulkPriceInput,
+  setBulkPriceInput,
+  currentImageUrl,
+  imageEdit,
+  onPickImage,
+  onRemoveImage,
   saving,
   isEditing,
   onSubmit,
@@ -572,6 +689,14 @@ function ProductForm({
   setDepositInput: (v: string) => void;
   categoriesInput: string;
   setCategoriesInput: (v: string) => void;
+  bulkQtyInput: string;
+  setBulkQtyInput: (v: string) => void;
+  bulkPriceInput: string;
+  setBulkPriceInput: (v: string) => void;
+  currentImageUrl: string | undefined;
+  imageEdit: ImageEdit;
+  onPickImage: (file: File) => void;
+  onRemoveImage: () => void;
   saving: boolean;
   isEditing: boolean;
   onSubmit: (e: React.FormEvent) => void;
@@ -598,6 +723,45 @@ function ProductForm({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-space-sm">
+        <div className="sm:col-span-2 lg:col-span-3 flex items-center gap-space-md">
+          <ProductImage
+            src={imageEdit.kind === "set" ? imageEdit.preview : imageEdit.kind === "remove" ? undefined : currentImageUrl}
+            alt="Product photo"
+            className="w-24 h-24 shrink-0"
+          />
+          <div className="flex flex-col gap-space-xs">
+            <span className="font-label-md text-label-md text-on-surface">Photo</span>
+            <p className="font-body-sm text-body-sm text-on-surface-variant">
+              Optional. It&apos;s shrunk to a small square automatically, so any photo works. Without one the tile stays blank.
+            </p>
+            <div className="flex items-center gap-space-xs">
+              <label className="h-9 px-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md inline-flex items-center gap-1 cursor-pointer">
+                <Icon name="photo_camera" className="text-base" />
+                {currentImageUrl || imageEdit.kind === "set" ? "Replace photo" : "Add photo"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="sr-only"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    e.target.value = "";
+                    if (file) onPickImage(file);
+                  }}
+                />
+              </label>
+              {(currentImageUrl && imageEdit.kind !== "remove") || imageEdit.kind === "set" ? (
+                <button
+                  type="button"
+                  onClick={onRemoveImage}
+                  className="h-9 px-space-sm rounded-lg text-error hover:bg-error-container font-label-md text-label-md"
+                >
+                  Remove
+                </button>
+              ) : null}
+            </div>
+          </div>
+        </div>
+
         <Field label="Name *">
           <input
             required
@@ -696,6 +860,33 @@ function ProductForm({
             />
           </div>
         </Field>
+
+        {form.pricingMode === "count" ? (
+          <Field label="Multi-buy price" hint="Optional: e.g. buy 3 for one price. Applies automatically at the register.">
+            <div className="flex items-center gap-space-xs">
+              <input
+                inputMode="numeric"
+                value={bulkQtyInput}
+                onChange={(e) => setBulkQtyInput(e.target.value.replace(/\D/g, "").slice(0, 3))}
+                className={`${inputClass} w-16 text-center`}
+                placeholder="3"
+                aria-label="Multi-buy quantity"
+              />
+              <span className="font-body-sm text-body-sm text-on-surface-variant shrink-0">for</span>
+              <div className="relative flex-1">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-outline">{currencySymbol()}</span>
+                <input
+                  inputMode="decimal"
+                  value={bulkPriceInput}
+                  onChange={(e) => setBulkPriceInput(e.target.value)}
+                  className={`${inputClass} pl-6`}
+                  placeholder="2.00"
+                  aria-label="Multi-buy price"
+                />
+              </div>
+            </div>
+          </Field>
+        ) : null}
 
         <Field label="Categories" hint="Comma-separated, optional">
           <input

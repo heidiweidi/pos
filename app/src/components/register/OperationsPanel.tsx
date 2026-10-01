@@ -14,16 +14,72 @@ import { useMode } from "@/lib/store/mode-store";
 import { useRegion } from "@/lib/store/region-store";
 import { usePos } from "@/lib/store/pos-store";
 
-/** Right column: scale HUD, fast tender, the big TENDER/PAY CTA, function matrix. */
-export function OperationsPanel() {
+/**
+ * Sits under the receipt tape: quick cash shortcuts and the big TENDER / PAY
+ * button, so the total and the way to settle it are always together.
+ */
+export function PayPanel() {
   const router = useRouter();
   const { addons } = useAddons();
   const { currency } = useRegion();
+  const { totals, showToast } = usePos();
+
+  const goToTender = () => {
+    if (totals.total <= 0) {
+      showToast({ title: "Nothing to tender", detail: "Cart is empty", tone: "warning" });
+      return;
+    }
+    router.push("/tender");
+  };
+
+  return (
+    <div className="flex flex-col gap-space-xs shrink-0">
+      {/* Fast tender shortcuts */}
+      <div className="grid grid-cols-2 gap-space-xs shrink-0">
+        <button
+          type="button"
+          onClick={() => router.push(`/tender?cash=${currency.fastCashCents}`)}
+          className="h-12 bg-surface-container-lowest hover:bg-surface-container-high transition-colors rounded-lg flex items-center justify-center gap-1 font-label-md text-label-md text-on-surface shadow-tile active:translate-y-0.5"
+        >
+          <Icon name="payments" className="text-primary text-base" />
+          <span>Fast {formatMoney(currency.fastCashCents).replace(/\.00$/, "")}</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => router.push(`/tender?cash=${totals.total}`)}
+          className="h-12 bg-surface-container-lowest hover:bg-surface-container-high transition-colors rounded-lg flex items-center justify-center gap-1 font-label-md text-label-md text-on-surface shadow-tile active:translate-y-0.5"
+        >
+          <Icon name="paid" className="text-primary text-base" />
+          <span className="truncate">Exact {formatMoney(totals.total)}</span>
+        </button>
+      </div>
+
+      {/* Primary tender CTA */}
+      <button
+        type="button"
+        onClick={goToTender}
+        className="h-16 bg-primary-container text-on-primary-container hover:bg-primary transition-all rounded-xl p-space-sm flex items-center justify-between shadow-lg active:translate-y-0.5 shrink-0 group"
+      >
+        <div className="text-left">
+          <div className="font-headline-sm text-headline-sm leading-tight flex items-center gap-1.5">
+            <span>TENDER / PAY</span>
+            <Icon name="arrow_forward" className="text-xl group-hover:translate-x-1 transition-transform" />
+          </div>
+          <div className="font-label-sm text-label-sm opacity-90">[F12] {addons.ebt ? "Card • Cash • SNAP" : "Card • Cash"}</div>
+        </div>
+        <div className="font-numeric-lg text-numeric-lg font-bold">{formatMoney(totals.total)}</div>
+      </button>
+    </div>
+  );
+}
+
+/** Left column, under the item tiles: scale readout (Scale add-on) and the cashier function keys. */
+export function ToolsPanel() {
+  const { addons } = useAddons();
   const mode = useMode();
   const [discountOpen, setDiscountOpen] = useState(false);
   const {
     scale,
-    totals,
     setScale,
     holdCart,
     recallCart,
@@ -38,16 +94,9 @@ export function OperationsPanel() {
     discount,
     showToast,
   } = usePos();
+  const { currency } = useRegion();
 
   const netWeight = Math.max(0, scale.grossLb - scale.tareLb);
-
-  const goToTender = () => {
-    if (totals.total <= 0) {
-      showToast({ title: "Nothing to tender", detail: "Cart is empty", tone: "warning" });
-      return;
-    }
-    router.push("/tender");
-  };
 
   const requireSelection = (action: (id: string) => void) => {
     if (!selectedLineId) {
@@ -58,7 +107,7 @@ export function OperationsPanel() {
   };
 
   return (
-    <div className="col-span-12 lg:col-span-3 flex flex-col h-full gap-space-sm overflow-hidden">
+    <div className="flex flex-col gap-space-sm shrink-0">
       {/* Scale HUD (Scale add-on) */}
       {addons.scale ? (
         <div className="bg-inverse-surface rounded-xl p-space-md text-inverse-on-surface shadow-md shrink-0 flex flex-col justify-between">
@@ -113,44 +162,8 @@ export function OperationsPanel() {
         </div>
       ) : null}
 
-      {/* Fast tender shortcuts */}
-      <div className="grid grid-cols-2 gap-space-xs shrink-0">
-        <button
-          type="button"
-          onClick={() => router.push(`/tender?cash=${currency.fastCashCents}`)}
-          className="h-12 bg-surface-container-lowest hover:bg-surface-container-high transition-colors rounded-lg flex items-center justify-center gap-1 font-label-md text-label-md text-on-surface shadow-tile active:translate-y-0.5"
-        >
-          <Icon name="payments" className="text-primary text-base" />
-          <span>Fast {formatMoney(currency.fastCashCents).replace(/\.00$/, "")}</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => router.push(`/tender?cash=${totals.total}`)}
-          className="h-12 bg-surface-container-lowest hover:bg-surface-container-high transition-colors rounded-lg flex items-center justify-center gap-1 font-label-md text-label-md text-on-surface shadow-tile active:translate-y-0.5"
-        >
-          <Icon name="paid" className="text-primary text-base" />
-          <span className="truncate">Exact {formatMoney(totals.total)}</span>
-        </button>
-      </div>
-
-      {/* Primary tender CTA */}
-      <button
-        type="button"
-        onClick={goToTender}
-        className="h-16 bg-primary-container text-on-primary-container hover:bg-primary transition-all rounded-xl p-space-sm flex items-center justify-between shadow-lg active:translate-y-0.5 shrink-0 group"
-      >
-        <div className="text-left">
-          <div className="font-headline-sm text-headline-sm leading-tight flex items-center gap-1.5">
-            <span>TENDER / PAY</span>
-            <Icon name="arrow_forward" className="text-xl group-hover:translate-x-1 transition-transform" />
-          </div>
-          <div className="font-label-sm text-label-sm opacity-90">[F12] {addons.ebt ? "Card • Cash • SNAP" : "Card • Cash"}</div>
-        </div>
-        <div className="font-numeric-lg text-numeric-lg font-bold">{formatMoney(totals.total)}</div>
-      </button>
-
       {/* Cashier function matrix */}
-      <div className="flex-1 bg-surface-container-lowest p-space-sm rounded-xl shadow-md grid grid-cols-2 gap-space-xs overflow-y-auto pos-scroll content-start">
+      <div className="bg-surface-container-lowest p-space-sm rounded-xl shadow-md grid grid-cols-4 gap-space-xs shrink-0">
         {addons.holds ? (
           <>
             <FnKey

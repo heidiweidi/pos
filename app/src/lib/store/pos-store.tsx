@@ -142,9 +142,12 @@ export function buildLine(
   const qty = opts.qty ?? 1;
   const weightLb = isScale ? Math.max(0, opts.weightLb ?? 1) : undefined;
 
+  const bulk = !isScale ? product.bulk : undefined;
   const draft = {
     pricingMode: product.pricingMode,
     qty,
+    bulkQty: bulk?.qty,
+    bulkPriceCents: bulk?.priceCents,
     unitPrice: product.unitPrice,
     weightLb,
     tareLb: opts.tareLb,
@@ -158,6 +161,8 @@ export function buildLine(
     unitLabel: product.unitLabel,
     pricingMode: product.pricingMode,
     qty,
+    bulkQty: bulk?.qty,
+    bulkPriceCents: bulk?.priceCents,
     weightLb,
     tareLb: opts.tareLb,
     taxFlag: product.taxFlag,

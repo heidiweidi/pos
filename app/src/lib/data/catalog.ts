@@ -144,7 +144,7 @@ export const PRODUCTS: Product[] = [
     art: "lemon",
     icon: "nature",
     iconClass: "text-tertiary-fixed-dim",
-    promoLabel: "3/$2.00",
+    bulk: { qty: 3, priceCents: 200 },
     categories: ["all", "citrus"],
   },
   {

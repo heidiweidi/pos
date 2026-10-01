@@ -47,7 +47,7 @@ export function ReceiptTape() {
   };
 
   return (
-    <div className="col-span-12 lg:col-span-5 flex flex-col h-full bg-surface-container-lowest rounded-xl shadow-md overflow-hidden">
+    <div className="flex flex-col flex-1 min-h-0 bg-surface-container-lowest rounded-xl shadow-md overflow-hidden">
       {/* Loyalty member banner */}
       {!addons.loyalty ? null : member ? (
         <div className="bg-primary-container px-space-md py-space-sm text-on-primary-container flex items-center justify-between shadow-sm shrink-0">

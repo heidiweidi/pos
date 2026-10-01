@@ -36,7 +36,9 @@ interface ProductRow {
   art: string | null;
   icon: string | null;
   icon_class: string | null;
-  promo_label: string | null;
+  image_url?: string | null;
+  bulk_qty?: number | null;
+  bulk_price_cents?: number | null;
   categories: string[] | null;
 }
 
@@ -84,7 +86,11 @@ function mapProduct(row: ProductRow): Product {
     art: row.art ?? undefined,
     icon: row.icon ?? undefined,
     iconClass: row.icon_class ?? undefined,
-    promoLabel: row.promo_label ?? undefined,
+    imageUrl: row.image_url ?? undefined,
+    bulk:
+      row.bulk_qty && row.bulk_price_cents != null
+        ? { qty: row.bulk_qty, priceCents: row.bulk_price_cents }
+        : undefined,
     categories: row.categories ?? undefined,
   };
 }

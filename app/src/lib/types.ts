@@ -64,8 +64,10 @@ export interface Product {
   icon?: string;
   /** Tailwind text-* class for the tile icon. */
   iconClass?: string;
-  /** Display-only promo string on fast keys, e.g. "3/$2.00". */
-  promoLabel?: string;
+  /** Small product photo (a public Supabase Storage URL). Blank when absent. */
+  imageUrl?: string;
+  /** Multi-buy price: every `qty` items cost `priceCents` together, e.g. 3 for 2.00. */
+  bulk?: { qty: number; priceCents: Cents };
   categories?: string[];
 }
 
@@ -87,6 +89,9 @@ export interface CartLine {
   pricingMode: PricingMode;
   /** Count for `count` items; unused for `scale`. */
   qty: number;
+  /** Multi-buy terms frozen at scan time (count items only). */
+  bulkQty?: number;
+  bulkPriceCents?: Cents;
   /** Net weight in pounds for `scale` items. */
   weightLb?: number;
   /** Tare deducted from gross weight, in pounds. */
