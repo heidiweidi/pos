@@ -1,9 +1,6 @@
 "use server";
 
-import { createClient as createAdminClient, type SupabaseClient } from "@supabase/supabase-js";
-
-import { getRuntime } from "../mode-server";
-import { createClient } from "../supabase/server";
+import { adminClient, requireManager } from "../server/admin";
 
 /**
  * Manager-only staff administration.
@@ -30,51 +27,6 @@ export interface NewStaffInput {
   badge: string;
   role: StaffRole;
   pin: string;
-}
-
-/** The signed-in caller, only if they are an active manager. */
-type Failure = { ok: false; error: string };
-// The project has no generated DB types, so rows are untyped like the other Supabase clients here.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AdminClient = SupabaseClient<any, "public", any>;
-
-async function requireManager(): Promise<Failure | { ok: true; supabase: Awaited<ReturnType<typeof createClient>>; userId: string }> {
-  const supabase = await createClient();
-  const { data: auth } = await supabase.auth.getUser();
-  if (!auth.user) return { ok: false, error: "You're signed out. Sign in again." };
-
-  const { data: me } = await supabase
-    .from("cashiers")
-    .select("id, role, active")
-    .eq("id", auth.user.id)
-    .maybeSingle();
-  if (!me?.active || me.role !== "manager") return { ok: false, error: "Only a manager can manage staff." };
-  return { ok: true, supabase, userId: auth.user.id };
-}
-
-/** A service-role client, but only for the project this deployment is configured for. */
-async function adminClient(): Promise<Failure | { ok: true; client: AdminClient }> {
-  const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) {
-    return {
-      ok: false,
-      error:
-        "Creating users needs server-side setup: set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY on the server (see the Staff page).",
-    };
-  }
-
-  // The connection a manager can pick in the browser is a cookie, so it must
-  // never decide where the secret key is sent.
-  const { connection } = await getRuntime();
-  if (!connection || new URL(connection.url).origin !== new URL(url).origin) {
-    return { ok: false, error: "This terminal is connected to a different Supabase project than the server is configured for." };
-  }
-
-  return {
-    ok: true,
-    client: createAdminClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } }),
-  };
 }
 
 export async function createStaffAction(input: NewStaffInput): Promise<StaffResult> {

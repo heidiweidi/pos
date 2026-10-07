@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 
+import { ShopeeSync } from "./ShopeeSync";
 import { Icon } from "@/components/ui/Icon";
 import { normaliseSupabaseUrl, readClientRuntime, writeRuntimeCookies, type SupabaseConnection } from "@/lib/mode";
 import { createClient } from "@/lib/supabase/client";
+import { useAddons } from "@/lib/store/addons-store";
 import { useCatalog } from "@/lib/store/catalog-store";
 import { useMode } from "@/lib/store/mode-store";
 import { useSession } from "@/lib/store/session-store";
@@ -55,6 +57,7 @@ async function testConnection(connection: SupabaseConnection): Promise<TestState
 export function DataModeAdmin() {
   const { cashier, signOut } = useSession();
   const mode = useMode();
+  const { addons } = useAddons();
   const { products, loading, error } = useCatalog();
 
   const [url, setUrl] = useState(() => readClientRuntime().connection?.url ?? "");
@@ -241,6 +244,20 @@ export function DataModeAdmin() {
           </div>
         </div>
       )}
+
+      {addons.shopee ? (
+        mode === "actual" ? (
+          <ShopeeSync />
+        ) : (
+          <div className={`${card} flex items-center gap-space-sm`}>
+            <Icon name="sync_alt" className="text-outline" />
+            <p className="font-body-sm text-body-sm text-on-surface-variant">
+              The Shopee Product Sync add-on is on. Switch to Actual mode to connect Shopee — synced products are stored in your
+              Supabase inventory.
+            </p>
+          </div>
+        )
+      ) : null}
     </div>
   );
 }

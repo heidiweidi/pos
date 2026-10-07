@@ -101,6 +101,7 @@ export function ProductsAdmin() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [sourceFilter, setSourceFilter] = useState<"all" | "manual" | "shopee">("all");
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<ProductFormInput>(EMPTY_FORM);
@@ -143,10 +144,15 @@ export function ProductsAdmin() {
     void refresh();
   }, [isManager, mode]);
 
+  const shopeeCount = useMemo(() => products.filter((p) => p.source === "shopee").length, [products]);
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return products;
-    return products.filter(
+    const bySource = products.filter(
+      (p) => sourceFilter === "all" || (sourceFilter === "shopee" ? p.source === "shopee" : p.source !== "shopee"),
+    );
+    if (!q) return bySource;
+    return bySource.filter(
       (p) =>
         p.name.toLowerCase().includes(q) ||
         p.department.toLowerCase().includes(q) ||
@@ -154,7 +160,7 @@ export function ProductsAdmin() {
         (p.upc ?? "").includes(q) ||
         (p.sku ?? "").includes(q),
     );
-  }, [products, query]);
+  }, [products, query, sourceFilter]);
 
   const existingCategories = useMemo(
     () => [...new Set(products.flatMap((p) => p.categories ?? []))].sort(),
@@ -385,7 +391,11 @@ export function ProductsAdmin() {
   }
 
   async function remove(row: ProductAdminRow) {
-    if (!window.confirm(`Delete "${row.name}" permanently? This can't be undone.`)) return;
+    const note =
+      row.source === "shopee"
+        ? "\n\nThis only removes the local copy — nothing changes on Shopee, and the next sync will bring it back."
+        : "";
+    if (!window.confirm(`Delete "${row.name}" permanently? This can't be undone.${note}`)) return;
     try {
       await deleteProduct(row.id, row.image_url);
       setProducts((prev) => prev.filter((p) => p.id !== row.id));
@@ -467,6 +477,7 @@ export function ProductsAdmin() {
           bulkPriceInput={bulkPriceInput}
           setBulkPriceInput={setBulkPriceInput}
           currentImageUrl={products.find((p) => p.id === editingId)?.image_url ?? undefined}
+          fromShopee={products.find((p) => p.id === editingId)?.source === "shopee"}
           imageEdit={imageEdit}
           onPickImage={(file) => void pickImage(file)}
           onRemoveImage={removeImage}
@@ -503,6 +514,18 @@ export function ProductsAdmin() {
               className="w-full h-10 pl-10 pr-3 bg-surface-container-low rounded-lg font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary transition-all"
             />
           </div>
+          {shopeeCount > 0 ? (
+            <select
+              value={sourceFilter}
+              onChange={(e) => setSourceFilter(e.target.value as typeof sourceFilter)}
+              aria-label="Filter by source"
+              className="h-10 px-2 bg-surface-container-low rounded-lg font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              <option value="all">All sources</option>
+              <option value="manual">Supabase (manual)</option>
+              <option value="shopee">Shopee ({shopeeCount})</option>
+            </select>
+          ) : null}
           <span className="font-label-sm text-label-sm text-on-surface-variant whitespace-nowrap">
             {filtered.length} of {products.length} products
           </span>
@@ -562,7 +585,18 @@ export function ProductsAdmin() {
                       <div className="flex items-center gap-space-sm">
                         <ProductImage src={row.image_url ?? undefined} alt="" className="w-10 h-10 shrink-0" />
                         <div className="min-w-0">
-                          <div className="font-label-md text-label-md text-on-surface">{row.name}</div>
+                          <div className="font-label-md text-label-md text-on-surface flex items-center gap-space-xs">
+                            {row.name}
+                            {row.source === "shopee" ? (
+                              <span className="px-1.5 py-0.5 rounded bg-tertiary-container text-on-tertiary-container font-label-sm text-label-sm">
+                                Shopee
+                              </span>
+                            ) : shopeeCount > 0 ? (
+                              <span className="px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+                                Supabase
+                              </span>
+                            ) : null}
+                          </div>
                           {row.subtitle ? (
                             <div className="font-body-sm text-body-sm text-on-surface-variant">
                               {row.subtitle}
@@ -673,6 +707,7 @@ function ProductForm({
   bulkPriceInput,
   setBulkPriceInput,
   currentImageUrl,
+  fromShopee,
   imageEdit,
   onPickImage,
   onRemoveImage,
@@ -694,6 +729,7 @@ function ProductForm({
   bulkPriceInput: string;
   setBulkPriceInput: (v: string) => void;
   currentImageUrl: string | undefined;
+  fromShopee: boolean;
   imageEdit: ImageEdit;
   onPickImage: (file: File) => void;
   onRemoveImage: () => void;
@@ -721,6 +757,16 @@ function ProductForm({
           <Icon name="close" />
         </button>
       </div>
+
+      {fromShopee ? (
+        <p className="flex items-start gap-space-xs p-space-sm rounded-lg bg-tertiary-container text-on-tertiary-container font-body-sm text-body-sm">
+          <Icon name="sync_alt" className="text-base shrink-0" />
+          <span>
+            Synced from Shopee. Each sync refreshes this product&apos;s name, price, SKU and photo from Shopee (your own
+            uploaded photo is kept). Department, categories, tax and active status are yours to change.
+          </span>
+        </p>
+      ) : null}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-space-sm">
         <div className="sm:col-span-2 lg:col-span-3 flex items-center gap-space-md">

@@ -36,6 +36,10 @@ export interface ProductAdminRow {
   image_url?: string | null;
   bulk_qty?: number | null;
   bulk_price_cents?: number | null;
+  /** Where the row came from: typed in by hand ("manual") or synced from Shopee. */
+  source?: "manual" | "shopee" | null;
+  external_id?: string | null;
+  last_synced_at?: string | null;
   active: boolean;
   updated_at: string;
 }

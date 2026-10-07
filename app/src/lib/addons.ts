@@ -7,7 +7,7 @@
  * underlying features are untouched, just hidden until enabled.
  */
 
-export const ADDON_IDS = ["scale", "loyalty", "ebt", "giftcard", "overrides", "holds"] as const;
+export const ADDON_IDS = ["scale", "loyalty", "ebt", "giftcard", "overrides", "holds", "shopee"] as const;
 
 export type AddonId = (typeof ADDON_IDS)[number];
 
@@ -65,6 +65,14 @@ export const ADDONS: readonly AddonInfo[] = [
     description: "Park a sale and come back to it.",
     adds: ["Hold Cart", "Recall Cart"],
   },
+  {
+    id: "shopee",
+    label: "Shopee Product Sync",
+    icon: "sync_alt",
+    description:
+      "Pull your Shopee product list into Manage Products (read-only — nothing is ever changed on Shopee). Needs Actual mode; set it up under Data Mode.",
+    adds: ["Shopee connection in Data Mode", "Sync products from Shopee", "Source filter in Manage Products"],
+  },
 ];
 
 export const DEFAULT_ADDONS: AddonState = {
@@ -74,6 +82,7 @@ export const DEFAULT_ADDONS: AddonState = {
   giftcard: false,
   overrides: false,
   holds: false,
+  shopee: false,
 };
 
 /** Tolerates a missing/partial/corrupt stored value — unknown keys are ignored. */
