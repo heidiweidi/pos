@@ -143,7 +143,8 @@ export function ShopeeSync() {
 
   const field =
     "w-full h-11 px-3 bg-surface-container-low rounded-lg font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary";
-  const redirectUrl = typeof window === "undefined" ? "" : `${window.location.origin}/api/shopee/callback`;
+  const redirectDomain = typeof window === "undefined" ? "" : window.location.origin;
+  const redirectUrl = `${redirectDomain}/api/shopee/callback`;
   const working = busy !== null;
 
   return (
@@ -232,11 +233,19 @@ export function ShopeeSync() {
             </select>
             and the department above. You can change either per product afterwards — a re-sync keeps your changes.
           </label>
-          <p className="font-label-sm text-label-sm text-on-surface-variant">
-            In the Shopee Open Platform console, set this app&apos;s redirect URL to{" "}
-            <code className="select-text">{redirectUrl}</code>. A re-sync refreshes each product&apos;s name, price, SKU and
-            photo only.
-          </p>
+          <div className="font-label-sm text-label-sm text-on-surface-variant flex flex-col gap-1">
+            <p>
+              In the Shopee Open Platform console, enter this <strong>domain only</strong> in the redirect-domain field
+              (&ldquo;Test Redirect URL Domain&rdquo; for the sandbox):{" "}
+              <code className="select-text">{redirectDomain}</code>
+            </p>
+            <p>
+              The authorise link sends Shopee to <code className="select-text">{redirectUrl}</code>, which is on that same
+              domain. Open the POS from this same address when you click Authorise — a different address (for example
+              the workers.dev one) won&apos;t match what you registered.
+            </p>
+            <p>A re-sync refreshes each product&apos;s name, price, SKU and photo only.</p>
+          </div>
         </>
       ) : null}
 
