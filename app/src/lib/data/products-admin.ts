@@ -40,6 +40,8 @@ export interface ProductAdminRow {
   source?: "manual" | "shopee" | null;
   external_id?: string | null;
   last_synced_at?: string | null;
+  /** Shopee stock at the last sync. */
+  stock_qty?: number | null;
   active: boolean;
   updated_at: string;
 }

@@ -33,12 +33,15 @@ export interface ShopeeStatus {
 
 const TAX_FLAGS = ["F", "T"] as const;
 
-const message = (error: unknown) =>
-  error instanceof ShopeeError
-    ? `Shopee said: ${error.message}`
-    : error instanceof Error
-      ? error.message
-      : "Something went wrong.";
+const message = (error: unknown) => {
+  if (error instanceof ShopeeError) return `Shopee said: ${error.message}`;
+  if (!(error instanceof Error)) return "Something went wrong.";
+  // A column added by a newer shopee.sql that hasn't been re-run yet.
+  if (/stock_qty|source|external_id|last_synced_at/.test(error.message) && /column|schema cache/i.test(error.message)) {
+    return "The database is missing a column — run supabase/shopee.sql again in the Supabase SQL editor (it's safe to re-run).";
+  }
+  return error.message;
+};
 
 function toStatus(secret: ShopeeSecret | null): ShopeeStatus {
   return {

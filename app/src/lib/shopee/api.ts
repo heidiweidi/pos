@@ -166,13 +166,21 @@ export interface ShopeeProduct {
   subtitle?: string;
   sku?: string;
   priceCents: number;
+  /** Units available on Shopee right now; undefined when Shopee didn't report it. */
+  stock?: number;
   imageUrl?: string;
+}
+
+interface StockFields {
+  stock_info_v2?: { summary_info?: { total_available_stock?: number } };
+  stock_info?: { current_stock?: number }[];
+  stock?: number;
 }
 
 interface PriceInfo {
   current_price?: number;
 }
-export interface ShopeeItemInfo {
+export interface ShopeeItemInfo extends StockFields {
   item_id: number;
   item_name?: string;
   item_sku?: string;
@@ -181,11 +189,17 @@ export interface ShopeeItemInfo {
   price_info?: PriceInfo[];
   image?: { image_url_list?: string[] };
 }
-export interface ShopeeModel {
+export interface ShopeeModel extends StockFields {
   model_id: number;
   model_sku?: string;
   model_name?: string;
   price_info?: PriceInfo[];
+}
+
+/** Newest field first: v2 summary, then the older per-location list, then the legacy scalar. */
+function stockOf(x: StockFields): number | undefined {
+  const n = x.stock_info_v2?.summary_info?.total_available_stock ?? x.stock_info?.[0]?.current_stock ?? x.stock;
+  return typeof n === "number" && Number.isFinite(n) ? Math.max(0, Math.trunc(n)) : undefined;
 }
 
 const toCents = (price: number | undefined): number => Math.max(0, Math.round((price ?? 0) * 100));
@@ -202,6 +216,7 @@ export function mapItem(item: ShopeeItemInfo, models: ShopeeModel[] | null): Sho
       subtitle: m.model_name?.trim() || undefined,
       sku: m.model_sku?.trim() || undefined,
       priceCents: toCents(m.price_info?.[0]?.current_price),
+      stock: stockOf(m),
       imageUrl,
     }));
   }
@@ -211,6 +226,7 @@ export function mapItem(item: ShopeeItemInfo, models: ShopeeModel[] | null): Sho
       name,
       sku: item.item_sku?.trim() || undefined,
       priceCents: toCents(item.price_info?.[0]?.current_price),
+      stock: stockOf(item),
       imageUrl,
     },
   ];

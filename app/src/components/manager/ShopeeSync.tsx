@@ -244,7 +244,7 @@ export function ShopeeSync() {
               domain. Open the POS from this same address when you click Authorise — a different address (for example
               the workers.dev one) won&apos;t match what you registered.
             </p>
-            <p>A re-sync refreshes each product&apos;s name, price, SKU and photo only.</p>
+            <p>A re-sync refreshes each product&apos;s name, price, stock, SKU and photo only.</p>
           </div>
         </>
       ) : null}

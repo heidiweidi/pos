@@ -559,6 +559,7 @@ export function ProductsAdmin() {
                   <th className="py-space-xs pr-space-sm">Department</th>
                   <th className="py-space-xs pr-space-sm">Categories</th>
                   <th className="py-space-xs pr-space-sm">Price</th>
+                  {shopeeCount > 0 ? <th className="py-space-xs pr-space-sm">Stock</th> : null}
                   <th className="py-space-xs pr-space-sm">Codes</th>
                   <th className="py-space-xs pr-space-sm">Tax</th>
                   <th className="py-space-xs pr-space-sm">EBT</th>
@@ -632,6 +633,11 @@ export function ProductsAdmin() {
                         </div>
                       ) : null}
                     </td>
+                    {shopeeCount > 0 ? (
+                      <td className="py-space-sm pr-space-sm font-numeric-md text-numeric-md text-on-surface">
+                        {row.stock_qty ?? <span className="text-outline">—</span>}
+                      </td>
+                    ) : null}
                     <td className="py-space-sm pr-space-sm font-body-sm text-body-sm text-on-surface-variant">
                       {codeSummary(row)}
                     </td>
@@ -762,7 +768,7 @@ function ProductForm({
         <p className="flex items-start gap-space-xs p-space-sm rounded-lg bg-tertiary-container text-on-tertiary-container font-body-sm text-body-sm">
           <Icon name="sync_alt" className="text-base shrink-0" />
           <span>
-            Synced from Shopee. Each sync refreshes this product&apos;s name, price, SKU and photo from Shopee (your own
+            Synced from Shopee. Each sync refreshes this product&apos;s name, price, stock, SKU and photo from Shopee (your own
             uploaded photo is kept). Department, categories, tax and active status are yours to change.
           </span>
         </p>

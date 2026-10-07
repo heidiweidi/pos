@@ -431,6 +431,8 @@ create policy "managers delete product images" on storage.objects for delete to 
 alter table products add column if not exists source         text not null default 'manual' check (source in ('manual', 'shopee'));
 alter table products add column if not exists external_id    text;
 alter table products add column if not exists last_synced_at timestamptz;
+-- Units available on Shopee at the last sync (informational; the POS does not decrement it).
+alter table products add column if not exists stock_qty      integer check (stock_qty >= 0);
 
 -- One local row per Shopee item/variation. Manual products have a null external_id,
 -- and Postgres lets many nulls through a unique constraint.

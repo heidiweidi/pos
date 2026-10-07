@@ -87,7 +87,7 @@ interface ProductRow {
 /**
  * Reads one page of Shopee items (GET only) and writes them to the local
  * `products` table. New items get the configured defaults; items already synced
- * only have the fields Shopee owns refreshed (name, price, SKU, photo), so a
+ * only have the fields Shopee owns refreshed (name, price, stock, SKU, photo), so a
  * manager's department / category / active edits survive every re-sync.
  */
 export async function syncStep(admin: AdminClient, offset: number): Promise<SyncStep> {
@@ -187,6 +187,7 @@ export async function syncStep(admin: AdminClient, offset: number): Promise<Sync
         name: p.name,
         subtitle: p.subtitle ?? null,
         unit_price_cents: p.priceCents,
+        stock_qty: p.stock ?? null,
         sku: row.sku ?? skuFor(p.sku, row.id),
         image_url: ownPhoto ? row.image_url : (p.imageUrl ?? null),
         last_synced_at: now,
@@ -200,6 +201,7 @@ export async function syncStep(admin: AdminClient, offset: number): Promise<Sync
         department_code: s.defaults.departmentCode,
         pricing_mode: "count",
         unit_price_cents: p.priceCents,
+        stock_qty: p.stock ?? null,
         unit_label: "each",
         tax_flag: s.defaults.taxFlag,
         ebt_eligible: false,
