@@ -169,7 +169,7 @@ export const DEMO_CART: CartLine[] = [
 
 export const DEMO_SHIFT: ShiftSummary = {
   id: "shift-482",
-  lane: "Lane 04",
+  lane: "AGUIRRE",
   cashierName: "Sarah Jenkins",
   badge: "0482",
   startedAt: "07:30 AM",
@@ -315,5 +315,5 @@ export const TARE_PRESETS = [
   { id: "tub", label: "Tub", lb: 0.12 },
 ];
 
-export const LANE_NAME = process.env.NEXT_PUBLIC_POS_LANE ?? "Lane 04";
+export const LANE_NAME = process.env.NEXT_PUBLIC_POS_LANE ?? "AGUIRRE";
 export const TERMINAL_NAME = process.env.NEXT_PUBLIC_POS_TERMINAL ?? "Main Terminal";

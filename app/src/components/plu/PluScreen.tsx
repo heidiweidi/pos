@@ -7,7 +7,7 @@ import { PluCard } from "./PluCard";
 import { ScaleDock } from "./ScaleDock";
 import { Icon } from "@/components/ui/Icon";
 import { searchProducts } from "@/lib/data/catalog";
-import { TARE_PRESETS } from "@/lib/data/session";
+import { LANE_NAME, TARE_PRESETS } from "@/lib/data/session";
 import { formatMoney, formatWeight, roundCents } from "@/lib/money";
 import { useCatalog } from "@/lib/store/catalog-store";
 import { useMode } from "@/lib/store/mode-store";
@@ -160,7 +160,7 @@ function PluDirectory() {
               className="h-12 px-space-md bg-surface-container-high text-on-surface rounded font-label-md text-label-md flex items-center gap-space-xs hover:bg-surface-variant transition-colors shrink-0 shadow-sm"
             >
               <Icon name="arrow_back" className="text-base" />
-              <span>Return to Lane 04</span>
+              <span>Return to {LANE_NAME}</span>
             </button>
           </div>
 

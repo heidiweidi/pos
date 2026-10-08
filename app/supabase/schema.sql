@@ -23,7 +23,7 @@ create type override_kind as enum ('price_override', 'post_tender_void', 'line_v
 create table lanes (
   id          uuid primary key default gen_random_uuid(),
   code        text not null unique,            -- 'L04'
-  name        text not null,                   -- 'Lane 04'
+  name        text not null,                   -- 'AGUIRRE'
   terminal    text not null default 'Main Terminal',
   active      boolean not null default true,
   created_at  timestamptz not null default now()

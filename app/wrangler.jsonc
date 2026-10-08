@@ -12,7 +12,7 @@
     "enabled": true
   },
   "vars": {
-    "NEXT_PUBLIC_POS_LANE": "Lane 04",
+    "NEXT_PUBLIC_POS_LANE": "AGUIRRE",
     "NEXT_PUBLIC_POS_TERMINAL": "Main Terminal"
   }
   // Secrets (set with `npx wrangler secret put <NAME>`):

@@ -8,6 +8,7 @@ import { ReceiptModal } from "./ReceiptModal";
 import { TenderMethodGrid } from "./TenderMethodGrid";
 import { Avatar } from "@/components/ui/Avatar";
 import { Icon } from "@/components/ui/Icon";
+import { LANE_NAME } from "@/lib/data/session";
 import { formatMoney, lineNet } from "@/lib/money";
 import { DISCOUNT_LABELS } from "@/lib/region";
 import { useRegion } from "@/lib/store/region-store";
@@ -460,7 +461,7 @@ export function TenderScreen() {
                   <Icon name="contactless" className="text-3xl" />
                 </div>
                 <span className="font-headline-md text-headline-md text-on-surface font-bold">
-                  Lane 04 Terminal PIN Pad Active
+                  {LANE_NAME} Terminal PIN Pad Active
                 </span>
                 <p className="font-body-md text-body-md text-on-surface-variant max-w-sm mx-auto">
                   Customer prompting: &ldquo;Insert Chip, Swipe, or Hold Phone Near Contactless
@@ -552,7 +553,7 @@ export function TenderScreen() {
               <StationRow
                 icon="meeting_room"
                 label="Drawer:"
-                value={`Lane 04 (${hardware.drawerOpen ? "Open" : "Closed & Armed"})`}
+                value={`${LANE_NAME} (${hardware.drawerOpen ? "Open" : "Closed & Armed"})`}
               />
               <StationRow
                 icon="print"
