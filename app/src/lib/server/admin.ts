@@ -1,5 +1,6 @@
 import { createClient as createAdminClient, type SupabaseClient } from "@supabase/supabase-js";
 
+import { normaliseSupabaseUrl } from "../mode";
 import { getRuntime } from "../mode-server";
 import { createClient } from "../supabase/server";
 
@@ -33,9 +34,9 @@ export async function requireManager(): Promise<
 
 /** A service-role client, but only for the project this deployment is configured for. */
 export async function adminClient(): Promise<Failure | { ok: true; client: AdminClient }> {
-  const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) {
+  const rawUrl = (process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL)?.trim();
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+  if (!rawUrl || !key) {
     return {
       ok: false,
       error:
@@ -45,6 +46,18 @@ export async function adminClient(): Promise<Failure | { ok: true; client: Admin
 
   // The connection a manager can pick in the browser is a cookie, so it must
   // never decide where the secret key is sent.
+  // A secret saved without "https://" (or with a pasted path) is common; reduce it to the origin.
+  const url = normaliseSupabaseUrl(rawUrl);
+  let valid = true;
+  try {
+    new URL(url);
+  } catch {
+    valid = false;
+  }
+  if (!valid) {
+    return { ok: false, error: "The SUPABASE_URL secret isn't a valid URL. It should look like https://xxxx.supabase.co" };
+  }
+
   const { connection } = await getRuntime();
   if (!connection || new URL(connection.url).origin !== new URL(url).origin) {
     return { ok: false, error: "This terminal is connected to a different Supabase project than the server is configured for." };
