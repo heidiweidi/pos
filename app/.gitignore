@@ -16,6 +16,10 @@ cloudflare-env.d.ts
 # production
 /build
 
+# next.js auto-generated
+AGENTS.md
+CLAUDE.md
+
 # misc
 .DS_Store
 *.pem
