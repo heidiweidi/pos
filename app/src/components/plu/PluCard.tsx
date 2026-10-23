@@ -1,7 +1,7 @@
 "use client";
 
 import { Icon } from "@/components/ui/Icon";
-import { ProduceArt } from "@/components/ui/ProduceArt";
+import { ProductImage } from "@/components/ui/ProductImage";
 import { formatMoney } from "@/lib/money";
 import type { Product } from "@/lib/types";
 
@@ -64,9 +64,10 @@ export function PluCard({
       </div>
 
       <div className="py-space-sm flex justify-center items-center">
-        <ProduceArt
-          art={product.art}
-          className="w-24 h-24 object-contain transition-transform group-hover:scale-105"
+        <ProductImage
+          src={product.imageUrl}
+          alt={product.name}
+          className="w-24 h-24 transition-transform group-hover:scale-105"
         />
       </div>
 

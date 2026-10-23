@@ -7,6 +7,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Icon } from "@/components/ui/Icon";
 import { DEMO_PASSWORD } from "@/lib/auth";
 import { CASHIERS, LANE_NAME, TERMINAL_NAME } from "@/lib/data/session";
+import { useMode } from "@/lib/store/mode-store";
 import { useSession } from "@/lib/store/session-store";
 
 /**
@@ -19,6 +20,7 @@ import { useSession } from "@/lib/store/session-store";
 export function LoginScreen() {
   const router = useRouter();
   const { signIn, cashier, loading } = useSession();
+  const mode = useMode();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -187,7 +189,8 @@ export function LoginScreen() {
             </form>
           </div>
 
-          {/* Demo roster — remove once Supabase Auth is wired in phase 2. */}
+          {/* Demo roster — demo mode only; actual mode signs in with real Supabase accounts. */}
+          {mode === "demo" ? (
           <div className="mt-space-md bg-surface-container-low rounded-xl p-space-md">
             <div className="flex items-center gap-space-xs mb-space-sm">
               <Icon name="science" className="text-tertiary text-base" />
@@ -220,6 +223,7 @@ export function LoginScreen() {
               ))}
             </div>
           </div>
+          ) : null}
         </div>
       </main>
     </div>

@@ -3,16 +3,26 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { Icon } from "@/components/ui/Icon";
+import { ProductsBulkBar } from "./ProductsBulkBar";
 import {
+  bulkUpdateProducts,
+  clearProductImage,
   createProduct,
   deleteProduct,
   listAllProducts,
   setProductActive,
+  setProductImage,
   updateProduct,
+  type BulkPatch,
   type ProductAdminRow,
   type ProductFormInput,
 } from "@/lib/data/products-admin";
-import { formatMoney, parseDollarsToCents } from "@/lib/money";
+import { currencySymbol, formatMoney, parseDollarsToCents } from "@/lib/money";
+import { useRegion } from "@/lib/store/region-store";
+import { prepareProductImage } from "@/lib/images";
+import { ProductImage } from "@/components/ui/ProductImage";
+import { useCatalog } from "@/lib/store/catalog-store";
+import { useMode } from "@/lib/store/mode-store";
 import { usePos } from "@/lib/store/pos-store";
 import { useSession } from "@/lib/store/session-store";
 import type { Department, PricingMode, TaxFlag } from "@/lib/types";
@@ -46,6 +56,7 @@ const EMPTY_FORM: ProductFormInput = {
   upc: "",
   sku: "",
   categories: [],
+  bulk: null,
 };
 
 function rowToForm(row: ProductAdminRow): ProductFormInput {
@@ -65,8 +76,12 @@ function rowToForm(row: ProductAdminRow): ProductFormInput {
     upc: row.upc ?? "",
     sku: row.sku ?? "",
     categories: row.categories ?? [],
+    bulk: row.bulk_qty && row.bulk_price_cents != null ? { qty: row.bulk_qty, priceCents: row.bulk_price_cents } : null,
   };
 }
+
+/** What the photo field will do when the form is saved. */
+type ImageEdit = { kind: "keep" } | { kind: "set"; blob: Blob; preview: string } | { kind: "remove" };
 
 function codeSummary(row: ProductAdminRow): string {
   const parts: string[] = [];
@@ -78,12 +93,15 @@ function codeSummary(row: ProductAdminRow): string {
 
 export function ProductsAdmin() {
   const { cashier } = useSession();
+  const mode = useMode();
+  const { refresh: refreshCatalog } = useCatalog();
   const { showToast } = usePos();
 
   const [products, setProducts] = useState<ProductAdminRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [sourceFilter, setSourceFilter] = useState<"all" | "manual" | "shopee">("all");
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<ProductFormInput>(EMPTY_FORM);
@@ -92,6 +110,11 @@ export function ProductsAdmin() {
   const [categoriesInput, setCategoriesInput] = useState("");
   const [saving, setSaving] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
+  const [bulkQtyInput, setBulkQtyInput] = useState("");
+  const [bulkPriceInput, setBulkPriceInput] = useState("");
+  const [imageEdit, setImageEdit] = useState<ImageEdit>({ kind: "keep" });
+  const [selected, setSelected] = useState<Set<string>>(() => new Set());
+  const [bulkBusy, setBulkBusy] = useState(false);
 
   const isManager = cashier?.role === "manager";
 
@@ -112,19 +135,24 @@ export function ProductsAdmin() {
   }
 
   useEffect(() => {
-    if (!isManager) return;
+    if (!isManager || mode !== "actual") return;
     // A one-time catalog fetch on mount, same shape as any client-side data
     // load — the resulting setState calls run after the promise settles, not
     // synchronously in this callback. Suppressing the newer set-state-in-effect
     // rule here rather than pulling in a fetching library for one admin screen.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void refresh();
-  }, [isManager]);
+  }, [isManager, mode]);
+
+  const shopeeCount = useMemo(() => products.filter((p) => p.source === "shopee").length, [products]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return products;
-    return products.filter(
+    const bySource = products.filter(
+      (p) => sourceFilter === "all" || (sourceFilter === "shopee" ? p.source === "shopee" : p.source !== "shopee"),
+    );
+    if (!q) return bySource;
+    return bySource.filter(
       (p) =>
         p.name.toLowerCase().includes(q) ||
         p.department.toLowerCase().includes(q) ||
@@ -132,7 +160,69 @@ export function ProductsAdmin() {
         (p.upc ?? "").includes(q) ||
         (p.sku ?? "").includes(q),
     );
-  }, [products, query]);
+  }, [products, query, sourceFilter]);
+
+  const existingCategories = useMemo(
+    () => [...new Set(products.flatMap((p) => p.categories ?? []))].sort(),
+    [products],
+  );
+  const departmentCodes = useMemo(() => {
+    const codes: Record<string, string> = {};
+    for (const p of products) codes[p.department] ??= p.department_code;
+    return codes;
+  }, [products]);
+
+  const allFilteredSelected = filtered.length > 0 && filtered.every((p) => selected.has(p.id));
+
+  function toggleRow(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAllFiltered() {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      for (const p of filtered) {
+        if (allFilteredSelected) next.delete(p.id);
+        else next.add(p.id);
+      }
+      return next;
+    });
+  }
+
+  async function applyBulk(patch: BulkPatch) {
+    const rows = products.filter((p) => selected.has(p.id));
+    if (rows.length === 0) return;
+    const parts = [
+      patch.department ? `move to ${patch.department}` : null,
+      patch.categories ? `${patch.categories.mode} categories (${patch.categories.values.join(", ")})` : null,
+      patch.active === undefined ? null : patch.active ? "set active" : "set inactive",
+    ].filter(Boolean);
+    if (!window.confirm(`Apply to ${rows.length} product${rows.length === 1 ? "" : "s"}: ${parts.join("; ")}?`)) return;
+
+    setBulkBusy(true);
+    try {
+      const updated = await bulkUpdateProducts(rows, patch);
+      const byId = new Map(updated.map((u) => [u.id, u]));
+      setProducts((prev) => prev.map((p) => byId.get(p.id) ?? p));
+      setSelected(new Set());
+      showToast({ title: `Updated ${updated.length} product${updated.length === 1 ? "" : "s"}`, tone: "success" });
+      void refreshCatalog();
+    } catch (error) {
+      console.error("[ProductsAdmin] bulk update failed:", error);
+      showToast({
+        title: "Bulk edit failed",
+        detail: error instanceof Error ? error.message : "Some changes may not have been saved — refresh and check.",
+        tone: "error",
+      });
+    } finally {
+      setBulkBusy(false);
+    }
+  }
 
   function startAdd() {
     setEditingId(null);
@@ -140,7 +230,40 @@ export function ProductsAdmin() {
     setPriceInput("");
     setDepositInput("");
     setCategoriesInput("");
+    setBulkQtyInput("");
+    setBulkPriceInput("");
+    resetImageEdit();
     setFormOpen(true);
+  }
+
+  function resetImageEdit() {
+    setImageEdit((prev) => {
+      if (prev.kind === "set") URL.revokeObjectURL(prev.preview);
+      return { kind: "keep" };
+    });
+  }
+
+  async function pickImage(file: File) {
+    try {
+      const blob = await prepareProductImage(file);
+      setImageEdit((prev) => {
+        if (prev.kind === "set") URL.revokeObjectURL(prev.preview);
+        return { kind: "set", blob, preview: URL.createObjectURL(blob) };
+      });
+    } catch (error) {
+      showToast({
+        title: "Couldn't use that photo",
+        detail: error instanceof Error ? error.message : undefined,
+        tone: "error",
+      });
+    }
+  }
+
+  function removeImage() {
+    setImageEdit((prev) => {
+      if (prev.kind === "set") URL.revokeObjectURL(prev.preview);
+      return { kind: "remove" };
+    });
   }
 
   function startEdit(row: ProductAdminRow) {
@@ -150,10 +273,14 @@ export function ProductsAdmin() {
     setPriceInput((next.unitPriceCents / 100).toFixed(2));
     setDepositInput(next.depositCents > 0 ? (next.depositCents / 100).toFixed(2) : "");
     setCategoriesInput(next.categories.join(", "));
+    setBulkQtyInput(next.bulk ? String(next.bulk.qty) : "");
+    setBulkPriceInput(next.bulk ? (next.bulk.priceCents / 100).toFixed(2) : "");
+    resetImageEdit();
     setFormOpen(true);
   }
 
   function cancelForm() {
+    resetImageEdit();
     setFormOpen(false);
     setEditingId(null);
   }
@@ -169,8 +296,25 @@ export function ProductsAdmin() {
       return;
     }
 
+    // Multi-buy: both boxes or neither.
+    let bulk: ProductFormInput["bulk"] = null;
+    if (form.pricingMode === "count" && (bulkQtyInput.trim() || bulkPriceInput.trim())) {
+      const qty = Number.parseInt(bulkQtyInput, 10);
+      const priceCents = parseDollarsToCents(bulkPriceInput);
+      if (!Number.isInteger(qty) || qty < 2 || priceCents <= 0) {
+        showToast({
+          title: "Check the multi-buy price",
+          detail: "Enter a quantity of 2 or more and the price for that many.",
+          tone: "error",
+        });
+        return;
+      }
+      bulk = { qty, priceCents };
+    }
+
     const input: ProductFormInput = {
       ...form,
+      bulk,
       unitPriceCents: parseDollarsToCents(priceInput),
       depositCents: depositInput.trim() ? parseDollarsToCents(depositInput) : 0,
       categories: categoriesInput
@@ -181,15 +325,42 @@ export function ProductsAdmin() {
 
     setSaving(true);
     try {
-      if (editingId) {
-        const updated = await updateProduct(editingId, input);
-        setProducts((prev) => prev.map((p) => (p.id === editingId ? updated : p)));
-        showToast({ title: `Updated ${updated.name}`, tone: "success" });
-      } else {
-        const created = await createProduct(input);
-        setProducts((prev) => [...prev, created]);
-        showToast({ title: `Added ${created.name}`, tone: "success" });
+      const before = editingId ? products.find((p) => p.id === editingId) : undefined;
+      let saved = editingId
+        ? await updateProduct(editingId, input, Boolean(before?.bulk_qty))
+        : await createProduct(input);
+
+      // The photo goes up after the product exists (its id names the file). A photo
+      // problem must not undo a product save, so it gets its own message.
+      let photoError: string | null = null;
+      try {
+        if (imageEdit.kind === "set") {
+          const image_url = await setProductImage(saved.id, imageEdit.blob, before?.image_url);
+          saved = { ...saved, image_url };
+        } else if (imageEdit.kind === "remove" && before?.image_url) {
+          await clearProductImage(saved.id, before.image_url);
+          saved = { ...saved, image_url: null };
+        }
+      } catch (error) {
+        console.error("[ProductsAdmin] photo save failed:", error);
+        photoError = error instanceof Error ? error.message : "Unknown error";
       }
+
+      const savedRow = saved;
+      setProducts((prev) =>
+        editingId ? prev.map((p) => (p.id === editingId ? savedRow : p)) : [...prev, savedRow],
+      );
+      showToast(
+        photoError
+          ? {
+              title: `${editingId ? "Updated" : "Added"} ${saved.name}, but the photo wasn't saved`,
+              detail: `${photoError} — has supabase/product-images.sql been run?`,
+              tone: "warning",
+            }
+          : { title: `${editingId ? "Updated" : "Added"} ${saved.name}`, tone: "success" },
+      );
+      resetImageEdit();
+      void refreshCatalog();
       setFormOpen(false);
       setEditingId(null);
     } catch (error) {
@@ -208,6 +379,7 @@ export function ProductsAdmin() {
     try {
       await setProductActive(row.id, !row.active);
       setProducts((prev) => prev.map((p) => (p.id === row.id ? { ...p, active: !p.active } : p)));
+      void refreshCatalog();
       showToast({
         title: row.active ? `${row.name} deactivated` : `${row.name} reactivated`,
         tone: row.active ? "warning" : "success",
@@ -219,10 +391,15 @@ export function ProductsAdmin() {
   }
 
   async function remove(row: ProductAdminRow) {
-    if (!window.confirm(`Delete "${row.name}" permanently? This can't be undone.`)) return;
+    const note =
+      row.source === "shopee"
+        ? "\n\nThis only removes the local copy — nothing changes on Shopee, and the next sync will bring it back."
+        : "";
+    if (!window.confirm(`Delete "${row.name}" permanently? This can't be undone.${note}`)) return;
     try {
-      await deleteProduct(row.id);
+      await deleteProduct(row.id, row.image_url);
       setProducts((prev) => prev.filter((p) => p.id !== row.id));
+      void refreshCatalog();
       showToast({ title: `Deleted ${row.name}`, tone: "success" });
     } catch (error) {
       console.error("[ProductsAdmin] delete failed:", error);
@@ -242,6 +419,20 @@ export function ProductsAdmin() {
           <h1 className="font-headline-sm text-headline-sm text-on-surface">Manager access required</h1>
           <p className="font-body-md text-body-md text-on-surface-variant">
             Product management is limited to manager accounts. Ask a manager to sign in to make changes here.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (mode !== "actual") {
+    return (
+      <div className="p-space-md max-w-xl mx-auto w-full">
+        <div className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm text-center flex flex-col items-center gap-space-sm">
+          <Icon name="science" className="text-4xl text-tertiary" />
+          <h1 className="font-headline-sm text-headline-sm text-on-surface">Demo mode</h1>
+          <p className="font-body-md text-body-md text-on-surface-variant">
+            Products are managed in your Supabase inventory. Switch to Actual mode under Data Mode to connect it.
           </p>
         </div>
       </div>
@@ -281,10 +472,31 @@ export function ProductsAdmin() {
           setDepositInput={setDepositInput}
           categoriesInput={categoriesInput}
           setCategoriesInput={setCategoriesInput}
+          bulkQtyInput={bulkQtyInput}
+          setBulkQtyInput={setBulkQtyInput}
+          bulkPriceInput={bulkPriceInput}
+          setBulkPriceInput={setBulkPriceInput}
+          currentImageUrl={products.find((p) => p.id === editingId)?.image_url ?? undefined}
+          fromShopee={products.find((p) => p.id === editingId)?.source === "shopee"}
+          imageEdit={imageEdit}
+          onPickImage={(file) => void pickImage(file)}
+          onRemoveImage={removeImage}
           saving={saving}
           isEditing={Boolean(editingId)}
           onSubmit={submitForm}
           onCancel={cancelForm}
+        />
+      ) : null}
+
+      {selected.size > 0 ? (
+        <ProductsBulkBar
+          count={selected.size}
+          departments={DEPARTMENTS}
+          departmentCodes={departmentCodes}
+          existingCategories={existingCategories}
+          busy={bulkBusy}
+          onApply={(patch) => void applyBulk(patch)}
+          onClear={() => setSelected(new Set())}
         />
       ) : null}
 
@@ -302,6 +514,18 @@ export function ProductsAdmin() {
               className="w-full h-10 pl-10 pr-3 bg-surface-container-low rounded-lg font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary transition-all"
             />
           </div>
+          {shopeeCount > 0 ? (
+            <select
+              value={sourceFilter}
+              onChange={(e) => setSourceFilter(e.target.value as typeof sourceFilter)}
+              aria-label="Filter by source"
+              className="h-10 px-2 bg-surface-container-low rounded-lg font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              <option value="all">All sources</option>
+              <option value="manual">Supabase (manual)</option>
+              <option value="shopee">Shopee ({shopeeCount})</option>
+            </select>
+          ) : null}
           <span className="font-label-sm text-label-sm text-on-surface-variant whitespace-nowrap">
             {filtered.length} of {products.length} products
           </span>
@@ -322,9 +546,20 @@ export function ProductsAdmin() {
             <table className="w-full text-left">
               <thead>
                 <tr className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider border-b border-surface-container-high">
+                  <th className="py-space-xs pr-space-sm w-8">
+                    <input
+                      type="checkbox"
+                      checked={allFilteredSelected}
+                      onChange={toggleAllFiltered}
+                      aria-label="Select all shown products"
+                      className="w-4 h-4 accent-primary"
+                    />
+                  </th>
                   <th className="py-space-xs pr-space-sm">Product</th>
                   <th className="py-space-xs pr-space-sm">Department</th>
+                  <th className="py-space-xs pr-space-sm">Categories</th>
                   <th className="py-space-xs pr-space-sm">Price</th>
+                  {shopeeCount > 0 ? <th className="py-space-xs pr-space-sm">Stock</th> : null}
                   <th className="py-space-xs pr-space-sm">Codes</th>
                   <th className="py-space-xs pr-space-sm">Tax</th>
                   <th className="py-space-xs pr-space-sm">EBT</th>
@@ -339,15 +574,52 @@ export function ProductsAdmin() {
                     className={`border-b border-surface-container-low ${row.active ? "" : "opacity-50"}`}
                   >
                     <td className="py-space-sm pr-space-sm">
-                      <div className="font-label-md text-label-md text-on-surface">{row.name}</div>
-                      {row.subtitle ? (
-                        <div className="font-body-sm text-body-sm text-on-surface-variant">
-                          {row.subtitle}
+                      <input
+                        type="checkbox"
+                        checked={selected.has(row.id)}
+                        onChange={() => toggleRow(row.id)}
+                        aria-label={`Select ${row.name}`}
+                        className="w-4 h-4 accent-primary"
+                      />
+                    </td>
+                    <td className="py-space-sm pr-space-sm">
+                      <div className="flex items-center gap-space-sm">
+                        <ProductImage src={row.image_url ?? undefined} alt="" className="w-10 h-10 shrink-0" />
+                        <div className="min-w-0">
+                          <div className="font-label-md text-label-md text-on-surface flex items-center gap-space-xs">
+                            {row.name}
+                            {row.source === "shopee" ? (
+                              <span className="px-1.5 py-0.5 rounded bg-tertiary-container text-on-tertiary-container font-label-sm text-label-sm">
+                                Shopee
+                              </span>
+                            ) : shopeeCount > 0 ? (
+                              <span className="px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+                                Supabase
+                              </span>
+                            ) : null}
+                          </div>
+                          {row.subtitle ? (
+                            <div className="font-body-sm text-body-sm text-on-surface-variant">
+                              {row.subtitle}
+                            </div>
+                          ) : null}
                         </div>
-                      ) : null}
+                      </div>
                     </td>
                     <td className="py-space-sm pr-space-sm font-body-sm text-body-sm text-on-surface-variant">
                       {row.department}
+                    </td>
+                    <td className="py-space-sm pr-space-sm">
+                      <div className="flex flex-wrap gap-1 max-w-[16rem]">
+                        {(row.categories ?? []).map((c) => (
+                          <span
+                            key={c}
+                            className="px-1.5 py-0.5 rounded-full bg-surface-container font-label-sm text-label-sm text-on-surface-variant"
+                          >
+                            {c}
+                          </span>
+                        ))}
+                      </div>
                     </td>
                     <td className="py-space-sm pr-space-sm font-numeric-md text-numeric-md text-on-surface">
                       {formatMoney(row.unit_price_cents)}
@@ -355,7 +627,17 @@ export function ProductsAdmin() {
                         {" "}
                         /{row.unit_label}
                       </span>
+                      {row.bulk_qty && row.bulk_price_cents != null ? (
+                        <div className="font-label-sm text-label-sm text-primary">
+                          {row.bulk_qty} for {formatMoney(row.bulk_price_cents)}
+                        </div>
+                      ) : null}
                     </td>
+                    {shopeeCount > 0 ? (
+                      <td className="py-space-sm pr-space-sm font-numeric-md text-numeric-md text-on-surface">
+                        {row.stock_qty ?? <span className="text-outline">—</span>}
+                      </td>
+                    ) : null}
                     <td className="py-space-sm pr-space-sm font-body-sm text-body-sm text-on-surface-variant">
                       {codeSummary(row)}
                     </td>
@@ -426,6 +708,15 @@ function ProductForm({
   setDepositInput,
   categoriesInput,
   setCategoriesInput,
+  bulkQtyInput,
+  setBulkQtyInput,
+  bulkPriceInput,
+  setBulkPriceInput,
+  currentImageUrl,
+  fromShopee,
+  imageEdit,
+  onPickImage,
+  onRemoveImage,
   saving,
   isEditing,
   onSubmit,
@@ -439,11 +730,21 @@ function ProductForm({
   setDepositInput: (v: string) => void;
   categoriesInput: string;
   setCategoriesInput: (v: string) => void;
+  bulkQtyInput: string;
+  setBulkQtyInput: (v: string) => void;
+  bulkPriceInput: string;
+  setBulkPriceInput: (v: string) => void;
+  currentImageUrl: string | undefined;
+  fromShopee: boolean;
+  imageEdit: ImageEdit;
+  onPickImage: (file: File) => void;
+  onRemoveImage: () => void;
   saving: boolean;
   isEditing: boolean;
   onSubmit: (e: React.FormEvent) => void;
   onCancel: () => void;
 }) {
+  const { currency } = useRegion();
   return (
     <form
       onSubmit={onSubmit}
@@ -463,7 +764,56 @@ function ProductForm({
         </button>
       </div>
 
+      {fromShopee ? (
+        <p className="flex items-start gap-space-xs p-space-sm rounded-lg bg-tertiary-container text-on-tertiary-container font-body-sm text-body-sm">
+          <Icon name="sync_alt" className="text-base shrink-0" />
+          <span>
+            Synced from Shopee. Each sync refreshes this product&apos;s name, price, stock, SKU and photo from Shopee (your own
+            uploaded photo is kept). Department, categories, tax and active status are yours to change.
+          </span>
+        </p>
+      ) : null}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-space-sm">
+        <div className="sm:col-span-2 lg:col-span-3 flex items-center gap-space-md">
+          <ProductImage
+            src={imageEdit.kind === "set" ? imageEdit.preview : imageEdit.kind === "remove" ? undefined : currentImageUrl}
+            alt="Product photo"
+            className="w-24 h-24 shrink-0"
+          />
+          <div className="flex flex-col gap-space-xs">
+            <span className="font-label-md text-label-md text-on-surface">Photo</span>
+            <p className="font-body-sm text-body-sm text-on-surface-variant">
+              Optional. It&apos;s shrunk to a small square automatically, so any photo works. Without one the tile stays blank.
+            </p>
+            <div className="flex items-center gap-space-xs">
+              <label className="h-9 px-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md inline-flex items-center gap-1 cursor-pointer">
+                <Icon name="photo_camera" className="text-base" />
+                {currentImageUrl || imageEdit.kind === "set" ? "Replace photo" : "Add photo"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="sr-only"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    e.target.value = "";
+                    if (file) onPickImage(file);
+                  }}
+                />
+              </label>
+              {(currentImageUrl && imageEdit.kind !== "remove") || imageEdit.kind === "set" ? (
+                <button
+                  type="button"
+                  onClick={onRemoveImage}
+                  className="h-9 px-space-sm rounded-lg text-error hover:bg-error-container font-label-md text-label-md"
+                >
+                  Remove
+                </button>
+              ) : null}
+            </div>
+          </div>
+        </div>
+
         <Field label="Name *">
           <input
             required
@@ -527,7 +877,7 @@ function ProductForm({
 
         <Field label="Unit price *" hint={form.pricingMode === "scale" ? "Per pound" : "Per item"}>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-outline">$</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-outline">{currencySymbol()}</span>
             <input
               required
               inputMode="decimal"
@@ -545,14 +895,14 @@ function ProductForm({
             onChange={(e) => setForm((f) => ({ ...f, taxFlag: e.target.value as typeof f.taxFlag }))}
             className={inputClass}
           >
-            <option value="F">F — Food (tax-exempt)</option>
-            <option value="T">T — Taxable merchandise</option>
+            <option value="F">{currency.taxMode === "vat" ? "E — VAT-exempt" : "F — Food (tax-exempt)"}</option>
+            <option value="T">{currency.taxMode === "vat" ? "V — VATable" : "T — Taxable merchandise"}</option>
           </select>
         </Field>
 
         <Field label="Container deposit" hint="e.g. CRV, leave blank if none">
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-outline">$</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-outline">{currencySymbol()}</span>
             <input
               inputMode="decimal"
               value={depositInput}
@@ -562,6 +912,33 @@ function ProductForm({
             />
           </div>
         </Field>
+
+        {form.pricingMode === "count" ? (
+          <Field label="Multi-buy price" hint="Optional: e.g. buy 3 for one price. Applies automatically at the register.">
+            <div className="flex items-center gap-space-xs">
+              <input
+                inputMode="numeric"
+                value={bulkQtyInput}
+                onChange={(e) => setBulkQtyInput(e.target.value.replace(/\D/g, "").slice(0, 3))}
+                className={`${inputClass} w-16 text-center`}
+                placeholder="3"
+                aria-label="Multi-buy quantity"
+              />
+              <span className="font-body-sm text-body-sm text-on-surface-variant shrink-0">for</span>
+              <div className="relative flex-1">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-outline">{currencySymbol()}</span>
+                <input
+                  inputMode="decimal"
+                  value={bulkPriceInput}
+                  onChange={(e) => setBulkPriceInput(e.target.value)}
+                  className={`${inputClass} pl-6`}
+                  placeholder="2.00"
+                  aria-label="Multi-buy price"
+                />
+              </div>
+            </div>
+          </Field>
+        ) : null}
 
         <Field label="Categories" hint="Comma-separated, optional">
           <input

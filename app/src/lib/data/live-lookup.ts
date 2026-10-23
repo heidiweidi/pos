@@ -1,3 +1,4 @@
+import { readClientRuntime } from "../mode";
 import { createClient } from "../supabase/client";
 import type { Department, PricingMode, Product, TaxFlag } from "../types";
 
@@ -21,11 +22,13 @@ interface LiveProductRow {
   art: string | null;
   icon: string | null;
   icon_class: string | null;
-  promo_label: string | null;
+  image_url?: string | null;
+  bulk_qty?: number | null;
+  bulk_price_cents?: number | null;
   categories: string[] | null;
 }
 
-function mapRow(row: LiveProductRow): Product {
+export function mapRow(row: LiveProductRow): Product {
   return {
     id: row.id,
     plu: row.plu ?? undefined,
@@ -45,7 +48,11 @@ function mapRow(row: LiveProductRow): Product {
     art: row.art ?? undefined,
     icon: row.icon ?? undefined,
     iconClass: row.icon_class ?? undefined,
-    promoLabel: row.promo_label ?? undefined,
+    imageUrl: row.image_url ?? undefined,
+    bulk:
+      row.bulk_qty && row.bulk_price_cents != null
+        ? { qty: row.bulk_qty, priceCents: row.bulk_price_cents }
+        : undefined,
     categories: row.categories ?? undefined,
   };
 }
@@ -66,7 +73,7 @@ function mapRow(row: LiveProductRow): Product {
  * degrade to "no match" rather than breaking the scan dock.
  */
 export async function findProductByCodeLive(code: string): Promise<Product | null> {
-  if (process.env.NEXT_PUBLIC_POS_DATA_SOURCE !== "supabase") return null;
+  if (readClientRuntime().mode !== "actual") return null;
   const q = code.trim();
   if (!q) return null;
 

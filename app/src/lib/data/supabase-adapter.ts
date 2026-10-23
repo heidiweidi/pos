@@ -1,3 +1,5 @@
+import { DEFAULT_ADDONS, parseAddons, type AddonState } from "../addons";
+import { DEFAULT_REGION, parseRegion, type RegionSettings } from "../region";
 import { createClient } from "../supabase/server";
 import { computeTotals } from "../money";
 import type { PosDataAdapter } from "./adapter";
@@ -34,7 +36,9 @@ interface ProductRow {
   art: string | null;
   icon: string | null;
   icon_class: string | null;
-  promo_label: string | null;
+  image_url?: string | null;
+  bulk_qty?: number | null;
+  bulk_price_cents?: number | null;
   categories: string[] | null;
 }
 
@@ -82,7 +86,11 @@ function mapProduct(row: ProductRow): Product {
     art: row.art ?? undefined,
     icon: row.icon ?? undefined,
     iconClass: row.icon_class ?? undefined,
-    promoLabel: row.promo_label ?? undefined,
+    imageUrl: row.image_url ?? undefined,
+    bulk:
+      row.bulk_qty && row.bulk_price_cents != null
+        ? { qty: row.bulk_qty, priceCents: row.bulk_price_cents }
+        : undefined,
     categories: row.categories ?? undefined,
   };
 }
@@ -303,6 +311,36 @@ export const supabaseAdapter: PosDataAdapter = {
       .order("badge");
     if (error) throw error;
     return Promise.all((data as CashierRow[]).map((row) => mapCashier(supabase, row)));
+  },
+
+  async getAddons(): Promise<AddonState> {
+    // A missing table (schema not migrated yet) or a read error must never
+    // break the terminal — fall back to the plain register with every add-on off.
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("app_settings")
+      .select("value")
+      .eq("key", "addons")
+      .maybeSingle();
+    if (error) {
+      console.error("[supabaseAdapter] getAddons failed, using defaults:", error.message);
+      return DEFAULT_ADDONS;
+    }
+    return parseAddons(data?.value);
+  },
+
+  async getRegion(): Promise<RegionSettings> {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("app_settings")
+      .select("value")
+      .eq("key", "region")
+      .maybeSingle();
+    if (error) {
+      console.error("[supabaseAdapter] getRegion failed, using defaults:", error.message);
+      return DEFAULT_REGION;
+    }
+    return parseRegion(data?.value);
   },
 
   async recordTransaction(input): Promise<{ id: string }> {

@@ -10,7 +10,7 @@
 -- ============================================================================
 
 insert into lanes (code, name, terminal) values
-  ('L04', 'Lane 04', 'Main Terminal')
+  ('L04', 'AGUIRRE', 'Main Terminal')
 on conflict (code) do nothing;
 
 insert into products

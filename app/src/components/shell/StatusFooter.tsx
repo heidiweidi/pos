@@ -1,16 +1,18 @@
 "use client";
 
 import { Icon } from "@/components/ui/Icon";
+import { useAddons } from "@/lib/store/addons-store";
 import { usePos } from "@/lib/store/pos-store";
 
 const HOTKEYS = [
   { key: "[F2]", label: "Void" },
   { key: "[F3]", label: "Qty" },
-  { key: "[F4]", label: "Price Check" },
-  { key: "[F7]", label: "Hold Cart" },
+  { key: "[F4]", label: "Price Check", addon: "scale" as const },
+  { key: "[F7]", label: "Hold Cart", addon: "holds" as const },
 ];
 
 export function StatusFooter() {
+  const { addons } = useAddons();
   const { hardware } = usePos();
 
   return (
@@ -28,6 +30,7 @@ export function StatusFooter() {
             />
             <span>Honeywell Xenon {hardware.scannerReady ? "Ready" : "Disconnected"}</span>
           </div>
+          {addons.scale ? (
           <div className="hidden lg:flex items-center gap-space-xs">
             <Icon
               name="scale"
@@ -35,6 +38,7 @@ export function StatusFooter() {
             />
             <span>Toledo Avery Berkel {hardware.scaleCalibrated ? "Calibrated" : "In Motion"}</span>
           </div>
+          ) : null}
           <div className="hidden sm:flex items-center gap-space-xs">
             <Icon name="print" className="text-sm text-primary" />
             <span>Epson TM-T88VI ({hardware.printerPaperPercent}% Roll)</span>
@@ -49,7 +53,7 @@ export function StatusFooter() {
         </div>
 
         <div className="hidden xl:flex items-center gap-space-sm font-label-sm text-label-sm text-on-surface">
-          {HOTKEYS.map((h) => (
+          {HOTKEYS.filter((h) => !h.addon || addons[h.addon]).map((h) => (
             <span
               key={h.key}
               className="bg-surface-container px-space-xs py-0.5 rounded text-on-surface-variant"

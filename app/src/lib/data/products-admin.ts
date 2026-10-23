@@ -33,6 +33,15 @@ export interface ProductAdminRow {
   deposit_cents: number;
   organic: boolean;
   categories: string[] | null;
+  image_url?: string | null;
+  bulk_qty?: number | null;
+  bulk_price_cents?: number | null;
+  /** Where the row came from: typed in by hand ("manual") or synced from Shopee. */
+  source?: "manual" | "shopee" | null;
+  external_id?: string | null;
+  last_synced_at?: string | null;
+  /** Shopee stock at the last sync. */
+  stock_qty?: number | null;
   active: boolean;
   updated_at: string;
 }
@@ -53,10 +62,23 @@ export interface ProductFormInput {
   upc: string;
   sku: string;
   categories: string[];
+  /** Multi-buy price, count items only; null = none. */
+  bulk: { qty: number; priceCents: number } | null;
 }
 
-function toRow(input: ProductFormInput) {
+/**
+ * `includeBulk` guards the multi-buy columns: they only exist once
+ * supabase/product-images.sql has been run, and sending them on every save
+ * would break ordinary edits on a project that hasn't migrated yet.
+ */
+function toRow(input: ProductFormInput, includeBulk: boolean) {
   return {
+    ...(includeBulk
+      ? {
+          bulk_qty: input.pricingMode === "count" && input.bulk ? input.bulk.qty : null,
+          bulk_price_cents: input.pricingMode === "count" && input.bulk ? input.bulk.priceCents : null,
+        }
+      : {}),
     name: input.name.trim(),
     subtitle: input.subtitle.trim() || null,
     department: input.department,
@@ -86,16 +108,20 @@ export async function listAllProducts(): Promise<ProductAdminRow[]> {
 
 export async function createProduct(input: ProductFormInput): Promise<ProductAdminRow> {
   const supabase = createClient();
-  const { data, error } = await supabase.from("products").insert(toRow(input)).select("*").single();
+  const { data, error } = await supabase.from("products").insert(toRow(input, input.bulk !== null)).select("*").single();
   if (error) throw error;
   return data as ProductAdminRow;
 }
 
-export async function updateProduct(id: string, input: ProductFormInput): Promise<ProductAdminRow> {
+export async function updateProduct(
+  id: string,
+  input: ProductFormInput,
+  hadBulk = false,
+): Promise<ProductAdminRow> {
   const supabase = createClient();
   const { data, error } = await supabase
     .from("products")
-    .update({ ...toRow(input), updated_at: new Date().toISOString() })
+    .update({ ...toRow(input, input.bulk !== null || hadBulk), updated_at: new Date().toISOString() })
     .eq("id", id)
     .select("*")
     .single();
@@ -109,8 +135,116 @@ export async function setProductActive(id: string, active: boolean): Promise<voi
   if (error) throw error;
 }
 
-export async function deleteProduct(id: string): Promise<void> {
+export async function deleteProduct(id: string, imageUrl?: string | null): Promise<void> {
   const supabase = createClient();
   const { error } = await supabase.from("products").delete().eq("id", id);
   if (error) throw error;
+  await removeStoredImage(imageUrl);
+}
+
+/* ------------------------------------------------------------------ photos */
+
+const BUCKET = "product-images";
+
+/** Storage object path from one of our public URLs, or null if it isn't ours. */
+function imagePathFromUrl(url: string | null | undefined): string | null {
+  const marker = `/${BUCKET}/`;
+  const at = url?.indexOf(marker) ?? -1;
+  return url && at >= 0 ? decodeURIComponent(url.slice(at + marker.length).split("?")[0]) : null;
+}
+
+/** Best effort — an orphaned 10 KB file is not worth failing a save over. */
+async function removeStoredImage(url: string | null | undefined): Promise<void> {
+  const path = imagePathFromUrl(url);
+  if (!path) return;
+  try {
+    await createClient().storage.from(BUCKET).remove([path]);
+  } catch (error) {
+    console.error("[products-admin] couldn't remove old image:", error);
+  }
+}
+
+/** Uploads a prepared photo, points the product at it, and cleans up the old one. */
+export async function setProductImage(id: string, blob: Blob, previousUrl?: string | null): Promise<string> {
+  const supabase = createClient();
+  const ext = blob.type === "image/jpeg" ? "jpg" : "webp";
+  // A fresh path per upload, so CDN/browser caches never serve the old photo.
+  const path = `${id}-${Date.now().toString(36)}.${ext}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from(BUCKET)
+    .upload(path, blob, { contentType: blob.type, cacheControl: "31536000" });
+  if (uploadError) throw uploadError;
+
+  const url = supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+  const { error } = await supabase.from("products").update({ image_url: url }).eq("id", id);
+  if (error) {
+    await removeStoredImage(url);
+    throw error;
+  }
+  await removeStoredImage(previousUrl);
+  return url;
+}
+
+export async function clearProductImage(id: string, previousUrl: string | null | undefined): Promise<void> {
+  const { error } = await createClient().from("products").update({ image_url: null }).eq("id", id);
+  if (error) throw error;
+  await removeStoredImage(previousUrl);
+}
+
+/** How a bulk edit changes each product's category list. */
+export type CategoryEdit = { mode: "add" | "remove" | "replace"; values: string[] };
+
+export interface BulkPatch {
+  department?: Department;
+  /** Only sent together with a department change, when the manager supplies one. */
+  departmentCode?: string;
+  active?: boolean;
+  categories?: CategoryEdit;
+}
+
+/** Lower-case, trimmed, spaces to dashes — matches the seeded slugs ("self-serve"). */
+export function normaliseCategory(input: string): string {
+  return input.trim().toLowerCase().replace(/\s+/g, "-");
+}
+
+function applyCategoryEdit(current: string[], edit: CategoryEdit): string[] {
+  if (edit.mode === "replace") return [...new Set(edit.values)];
+  if (edit.mode === "add") return [...new Set([...current, ...edit.values])];
+  return current.filter((c) => !edit.values.includes(c));
+}
+
+/**
+ * Applies one change to many products. Department / status are a single
+ * `update ... where id in (...)`. Category add/remove depends on each product's
+ * current list, so products are grouped by their resulting list and each group
+ * is one update — a typical bulk edit is one or two round trips, not one per row.
+ * Returns the rows as they now stand.
+ */
+export async function bulkUpdateProducts(rows: ProductAdminRow[], patch: BulkPatch): Promise<ProductAdminRow[]> {
+  const supabase = createClient();
+  const now = new Date().toISOString();
+  const base: Record<string, unknown> = { updated_at: now };
+  if (patch.department) base.department = patch.department;
+  if (patch.department && patch.departmentCode?.trim()) base.department_code = patch.departmentCode.trim();
+  if (patch.active !== undefined) base.active = patch.active;
+
+  // Group by the category list each row ends up with (or one group if untouched).
+  const groups = new Map<string, { ids: string[]; categories?: string[] }>();
+  for (const row of rows) {
+    const next = patch.categories ? applyCategoryEdit(row.categories ?? [], patch.categories) : undefined;
+    const key = next ? JSON.stringify([...next].sort()) : "-";
+    const group = groups.get(key) ?? { ids: [], categories: next };
+    group.ids.push(row.id);
+    groups.set(key, group);
+  }
+
+  const updated: ProductAdminRow[] = [];
+  for (const group of groups.values()) {
+    const update = group.categories ? { ...base, categories: group.categories } : base;
+    const { data, error } = await supabase.from("products").update(update).in("id", group.ids).select("*");
+    if (error) throw error;
+    updated.push(...(data as ProductAdminRow[]));
+  }
+  return updated;
 }

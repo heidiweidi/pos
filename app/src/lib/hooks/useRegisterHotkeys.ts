@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
+import { useAddons } from "@/lib/store/addons-store";
 import { usePos } from "@/lib/store/pos-store";
 
 /**
@@ -13,6 +14,7 @@ import { usePos } from "@/lib/store/pos-store";
  */
 export function useRegisterHotkeys() {
   const router = useRouter();
+  const { addons } = useAddons();
   const { selectedLineId, voidLine, changeQty, holdCart, totals, showToast } = usePos();
 
   useEffect(() => {
@@ -34,10 +36,12 @@ export function useRegisterHotkeys() {
           break;
         case "F4":
           event.preventDefault();
+          if (!addons.scale) break;
           router.push("/plu");
           break;
         case "F7":
           event.preventDefault();
+          if (!addons.holds) break;
           holdCart();
           showToast({ title: "Cart suspended", detail: "Ticket held for recall", tone: "success" });
           break;
@@ -53,5 +57,5 @@ export function useRegisterHotkeys() {
 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [router, selectedLineId, voidLine, changeQty, holdCart, totals.total, showToast]);
+  }, [addons.scale, addons.holds, router, selectedLineId, voidLine, changeQty, holdCart, totals.total, showToast]);
 }

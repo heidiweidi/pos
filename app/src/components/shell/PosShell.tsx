@@ -8,11 +8,13 @@ import { StatusFooter } from "./StatusFooter";
 import { TerminalHeader } from "./TerminalHeader";
 import { Toast } from "./Toast";
 import { Icon } from "@/components/ui/Icon";
+import { useRegion } from "@/lib/store/region-store";
 import { useSession } from "@/lib/store/session-store";
 
 export function PosShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { cashier, loading, locked } = useSession();
+  const { currency } = useRegion();
 
   // Bounce to the sign-in screen once session restore has actually finished —
   // redirecting earlier would kick a cashier out on every page reload.
@@ -29,8 +31,9 @@ export function PosShell({ children }: { children: React.ReactNode }) {
     );
   }
 
+  // Keyed by currency so every screen re-renders its amounts when it changes.
   return (
-    <div className="min-h-screen flex flex-col">
+    <div key={currency.code} className="min-h-screen flex flex-col">
       <TerminalHeader />
       <main className="w-full pt-16 pb-12 bg-surface flex-1">{children}</main>
       <StatusFooter />

@@ -11,6 +11,7 @@ import {
 } from "react";
 
 import { getAuthProvider } from "../auth";
+import { useMode } from "./mode-store";
 import type { Cashier } from "../types";
 import {
   getServerSnapshot,
@@ -44,7 +45,8 @@ export function SessionProvider({
   cashiers: Cashier[];
 }) {
   const router = useRouter();
-  const auth = useMemo(() => getAuthProvider(), []);
+  const mode = useMode();
+  const auth = useMemo(() => getAuthProvider(mode), [mode]);
 
   // The persisted sign-in lives in localStorage, which is an external store.
   const persisted = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);

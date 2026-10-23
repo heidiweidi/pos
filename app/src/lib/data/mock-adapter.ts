@@ -1,3 +1,5 @@
+import { DEFAULT_ADDONS } from "../addons";
+import { DEFAULT_REGION } from "../region";
 import type { PosDataAdapter } from "./adapter";
 import { PRODUCTS, lookupByCode } from "./catalog";
 import { CASHIERS, DEMO_CART, DEMO_MEMBER, DEMO_SHIFT } from "./session";
@@ -26,6 +28,10 @@ export const mockAdapter: PosDataAdapter = {
   getShiftSummary: () => tick(DEMO_SHIFT),
 
   listCashiers: () => tick(CASHIERS),
+
+  getAddons: () => tick(DEFAULT_ADDONS),
+
+  getRegion: () => tick(DEFAULT_REGION),
 
   recordTransaction: async () => tick({ id: `txn-${Date.now().toString(36)}` }),
 };

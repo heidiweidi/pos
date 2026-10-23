@@ -64,8 +64,10 @@ export interface Product {
   icon?: string;
   /** Tailwind text-* class for the tile icon. */
   iconClass?: string;
-  /** Display-only promo string on fast keys, e.g. "3/$2.00". */
-  promoLabel?: string;
+  /** Small product photo (a public Supabase Storage URL). Blank when absent. */
+  imageUrl?: string;
+  /** Multi-buy price: every `qty` items cost `priceCents` together, e.g. 3 for 2.00. */
+  bulk?: { qty: number; priceCents: Cents };
   categories?: string[];
 }
 
@@ -87,6 +89,9 @@ export interface CartLine {
   pricingMode: PricingMode;
   /** Count for `count` items; unused for `scale`. */
   qty: number;
+  /** Multi-buy terms frozen at scan time (count items only). */
+  bulkQty?: number;
+  bulkPriceCents?: Cents;
   /** Net weight in pounds for `scale` items. */
   weightLb?: number;
   /** Tare deducted from gross weight, in pounds. */
@@ -94,6 +99,8 @@ export interface CartLine {
   taxFlag: TaxFlag;
   ebtEligible: boolean;
   depositCents?: Cents;
+  /** Code shown in the descriptor line ("PLU 4225"); kept so edits can re-render it. */
+  codeLabel?: string;
   /** Descriptor line under the name: "4 @ $1.25 ea • PLU 4225". */
   detail: string;
   discount?: LineDiscount;
@@ -126,6 +133,16 @@ export interface CartTotals {
   total: Cents;
   itemCount: number;
   totalWeightLb: number;
+  /** VAT regions: `tax` is already inside the shelf prices, not added on top. */
+  taxInclusive: boolean;
+  /** VAT regions: sales subject to VAT, net of the VAT itself. */
+  vatableSales: Cents;
+  /** VAT regions: VAT-exempt sales (before any Senior/PWD discount). */
+  vatExemptSales: Cents;
+  /** Senior/PWD: VAT stripped from the shelf price before the discount. */
+  scpwdVatRemoved: Cents;
+  /** Senior/PWD: the statutory discount itself. */
+  scpwdDiscount: Cents;
 }
 
 export type TenderKind = "cash" | "card" | "ebt_snap" | "ebt_cash" | "gift" | "wic";

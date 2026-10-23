@@ -1,3 +1,5 @@
+import type { AddonState } from "../addons";
+import type { RegionSettings } from "../region";
 import type { CartLine, Cashier, LoyaltyMember, Product, ShiftSummary, TenderEntry } from "../types";
 
 /**
@@ -22,6 +24,10 @@ export interface PosDataAdapter {
   getShiftSummary(shiftId: string): Promise<ShiftSummary>;
   /** Roster for the sign-in screen's badge list and PIN unlock. */
   listCashiers(): Promise<Cashier[]>;
+  /** Which optional add-ons the admin has switched on (all off by default). */
+  getAddons(): Promise<AddonState>;
+  /** Currency, tax and discount settings (US dollars by default). */
+  getRegion(): Promise<RegionSettings>;
   /** Persists a settled transaction. Phase 1 just resolves an id. */
   recordTransaction(input: {
     lane: string;

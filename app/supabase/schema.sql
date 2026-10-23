@@ -23,7 +23,7 @@ create type override_kind as enum ('price_override', 'post_tender_void', 'line_v
 create table lanes (
   id          uuid primary key default gen_random_uuid(),
   code        text not null unique,            -- 'L04'
-  name        text not null,                   -- 'Lane 04'
+  name        text not null,                   -- 'AGUIRRE'
   terminal    text not null default 'Main Terminal',
   active      boolean not null default true,
   created_at  timestamptz not null default now()
@@ -372,3 +372,84 @@ create policy "overrides follow shift" on override_log for all
 create policy "counts follow shift" on drawer_counts for all
   using (exists (select 1 from shifts s where s.id = shift_id and (s.cashier_id = auth.uid() or is_supervisor())))
   with check (exists (select 1 from shifts s where s.id = shift_id and s.cashier_id = auth.uid()));
+
+-- ---------------------------------------------------------------------------
+-- Add-on switches (see addons.sql)
+-- ---------------------------------------------------------------------------
+create table if not exists app_settings (
+  key        text primary key,
+  value      jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+
+alter table app_settings enable row level security;
+
+drop policy if exists "staff read settings" on app_settings;
+create policy "staff read settings" on app_settings for select using (is_staff());
+
+drop policy if exists "managers write settings" on app_settings;
+create policy "managers write settings" on app_settings for all
+  using (current_staff_role() = 'manager') with check (current_staff_role() = 'manager');
+
+-- ---------------------------------------------------------------------------
+-- Product photos and multi-buy pricing (see product-images.sql)
+-- ---------------------------------------------------------------------------
+alter table products add column if not exists image_url        text;
+alter table products add column if not exists bulk_qty         integer check (bulk_qty >= 2);
+alter table products add column if not exists bulk_price_cents integer check (bulk_price_cents >= 0);
+
+-- Public bucket for the photos. The app shrinks every photo to a small square
+-- WebP before upload; the 100 KB cap and image-only types are enforced here too,
+-- so nothing larger can be stored even by a hand-made request.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('product-images', 'product-images', true, 102400, array['image/webp', 'image/jpeg', 'image/png'])
+on conflict (id) do update
+  set public = excluded.public,
+      file_size_limit = excluded.file_size_limit,
+      allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists "product images readable" on storage.objects;
+create policy "product images readable" on storage.objects for select
+  using (bucket_id = 'product-images');
+
+drop policy if exists "managers add product images" on storage.objects;
+create policy "managers add product images" on storage.objects for insert to authenticated
+  with check (bucket_id = 'product-images' and current_staff_role() = 'manager');
+
+drop policy if exists "managers replace product images" on storage.objects;
+create policy "managers replace product images" on storage.objects for update to authenticated
+  using (bucket_id = 'product-images' and current_staff_role() = 'manager');
+
+drop policy if exists "managers delete product images" on storage.objects;
+create policy "managers delete product images" on storage.objects for delete to authenticated
+  using (bucket_id = 'product-images' and current_staff_role() = 'manager');
+
+-- ---------------------------------------------------------------------------
+-- Shopee product sync (see shopee.sql)
+-- ---------------------------------------------------------------------------
+-- Where each product came from, so Manage Products can show and filter by it.
+alter table products add column if not exists source         text not null default 'manual' check (source in ('manual', 'shopee'));
+alter table products add column if not exists external_id    text;
+alter table products add column if not exists last_synced_at timestamptz;
+-- Units available on Shopee at the last sync (informational; the POS does not decrement it).
+alter table products add column if not exists stock_qty      integer check (stock_qty >= 0);
+
+-- One local row per Shopee item/variation. Manual products have a null external_id,
+-- and Postgres lets many nulls through a unique constraint.
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'products_source_external_key') then
+    alter table products add constraint products_source_external_key unique (source, external_id);
+  end if;
+end $$;
+
+-- Integration credentials (partner key, access/refresh tokens). RLS is on with NO
+-- policies, so no browser session — not even a manager's — can read it. Only the
+-- server, using the service-role key, touches this table.
+create table if not exists integration_secrets (
+  provider    text primary key,
+  data        jsonb not null default '{}'::jsonb,
+  updated_at  timestamptz not null default now()
+);
+alter table integration_secrets enable row level security;
+revoke all on integration_secrets from anon, authenticated;

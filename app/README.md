@@ -45,6 +45,15 @@ mid-shift handover works without a full re-auth.
 | `npm run deploy`       | Build and deploy to Cloudflare Workers                     |
 | `npm run cf:typegen`   | Regenerate `cloudflare-env.d.ts` from `wrangler.jsonc`     |
 
+## Demo vs Actual mode
+
+Managers switch modes under **Data Mode**. *Demo* runs on the bundled sample
+catalog, demo accounts and a seeded sale. *Actual* clears all of that and runs on
+the store's own Supabase project: inventory from `products`, sign-in through
+Supabase Auth, shifts and settings from the database. The mode and connection
+(URL + anon key) are stored in cookies, so no rebuild is needed; the
+`NEXT_PUBLIC_*` env vars remain the default when nothing has been chosen.
+
 ## Screens
 
 | Route       | Screen                | Notes                                                          |
